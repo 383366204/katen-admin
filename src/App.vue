@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <side-bar></side-bar>
+    <side-bar v-if="!getIndex"></side-bar>
     <router-view/>
   </div>
 </template>
@@ -12,6 +12,27 @@ export default {
   name: 'App',
   components:{
     SideBar
+  },
+  methods:{
+    judgeIndex(){
+      if(this.$route.path!="/"){
+        this.$store.commit('setIndexFalse');
+      }
+      else{
+        this.$store.commit('setIndexTrue');
+      }
+    }
+  },
+  computed:{
+    getIndex(){
+      return this.$store.state.isIndex;
+    }
+  },
+  watch: {
+      "$route.path": "judgeIndex"
+  },
+  beforeMount: function () {
+      this.judgeIndex();
   }
 }
 </script>

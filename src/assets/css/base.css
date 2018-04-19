@@ -1,0 +1,177 @@
+html,
+body,
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+input,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+textarea,
+article,
+aside,
+audio,
+canvas,
+figure,
+footer,
+header,
+mark,
+menu,
+nav,
+section,
+time,
+video {
+    margin: 0;
+    padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: 100%;
+    font-weight: normal
+}
+
+article,
+aside,
+dialog,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+blockquote {
+    display: block;
+}
+
+ul,
+ol {
+    list-style: none;
+}
+
+img {
+    border: 0 none;
+    vertical-align: top;
+}
+
+blockquote,
+q {
+    quotes: none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+strong,
+em,
+i {
+    font-style: normal;
+    font-weight: normal;
+}
+
+ins {
+    text-decoration: underline;
+}
+
+del {
+    text-decoration: line-through;
+}
+
+mark {
+    background: none;
+}
+
+input::-ms-clear {
+    display: none !important;
+}
+
+body {
+    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+    background: #fff;
+    min-width: 1200px;
+}
+
+a {
+    text-decoration: none;
+    color: #333;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.indexTopBgColor {
+    background: linear-gradient(to bottom right, #2eb4e9, #5fcff3)
+}
+
+.bg-blue {
+    background: #2eb4e9;
+}
+
+.bg-gray {
+    background: #edeef2;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/*分页样式修改*/
+  .el-pagination{
+    text-align: center;
+    margin: 0 auto;
+    margin-bottom: 20px;
+  }
+  .el-pagination button,
+  .el-pagination span, 
+  .el-pager li{
+    min-width: 40px;
+    height: 40px;
+    line-height: 40px;
+  }
+  .el-pager li.btn-quicknext, 
+  .el-pager li.btn-quickprev{
+    line-height: 40px;
+  }
+  .el-pagination .btn-prev,
+  .el-pagination .el-pager li{
+    margin-right: 10px;
+  }
+  .el-pagination button,
+  .el-pagination .el-pager li{
+    border-radius: 4px !important;
+    border: 1px solid #d1dbe5 !important;
+  }

@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import SideBar from '@/components/SideBar'
-import Order from '@/views/Order'
+import Login from '@/views/Login';
+import Product from '@/views/Product'
 import Message from '@/views/Message'
 
 Vue.use(Router)
@@ -10,12 +11,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Index'
+      name: 'Login',
+      component:Login
     },
     {
-      path: '/Order',
-      name: 'Order',
-      component:Order
+      path: '/Product',
+      name: 'Product',
+      component:Product
     },
     {
       path: '/Message',
