@@ -1,106 +1,37 @@
 <template>
-    <main>
-        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-        <el-form-item label="活动名称" prop="name">
-          <el-input v-model="ruleForm.name"></el-input>
-        </el-form-item>
-        <el-form-item label="活动区域" prop="region">
-          <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="活动时间" required>
-          <el-col :span="11">
-            <el-form-item prop="date1">
-              <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
+      <el-row type="flex" justify="center" align="middle" class="loginForm">
+        <el-col :span="6">
+          <h1 class="title">后台管理系统</h1>
+          <el-form :model="loginForm" :rules="loginFormRules" ref="loginForm" label-width="100px">
+            <el-form-item label="管理员帐号" prop="id">
+              <el-input v-model="loginForm.id"></el-input>
             </el-form-item>
-          </el-col>
-          <el-col class="line" :span="2">-</el-col>
-          <el-col :span="11">
-            <el-form-item prop="date2">
-              <el-time-picker type="fixed-time" placeholder="选择时间" v-model="ruleForm.date2" style="width: 100%;"></el-time-picker>
+            <el-form-item label="管理员密码" prop="password">
+              <el-input type="password" v-model="loginForm.password" @keyup.enter.native="submitForm('loginForm')"></el-input>
             </el-form-item>
-          </el-col>
-        </el-form-item>
-        <el-form-item label="即时配送" prop="delivery">
-          <el-switch v-model="ruleForm.delivery"></el-switch>
-        </el-form-item>
-        <el-form-item label="活动性质" prop="type">
-          <el-checkbox-group v-model="ruleForm.type">
-            <el-checkbox label="美食/餐厅线上活动" name="type"></el-checkbox>
-            <el-checkbox label="地推活动" name="type"></el-checkbox>
-            <el-checkbox label="线下主题活动" name="type"></el-checkbox>
-            <el-checkbox label="单纯品牌曝光" name="type"></el-checkbox>
-          </el-checkbox-group>
-        </el-form-item>
-        <el-form-item label="特殊资源" prop="resource">
-          <el-radio-group v-model="ruleForm.resource">
-            <el-radio label="线上品牌商赞助"></el-radio>
-            <el-radio label="线下场地免费"></el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="活动形式" prop="desc">
-          <el-input type="textarea" v-model="ruleForm.desc"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
-          <el-button @click="resetForm('ruleForm')">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </main>
+            <el-form-item>
+              <el-button class="loginBtn" type="primary" @click="submitForm('loginForm')">登录</el-button>
+            </el-form-item>
+          </el-form>
+        </el-col>
+      </el-row>
 </template>
 
 <script>
 export default {
   data() {
     return {
-      ruleForm: {
-        name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: ""
+      loginForm: {
+        id:'',
+        password:''
       },
-      rules: {
-        name: [
-          { required: true, message: "请输入活动名称", trigger: "blur" },
-          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
+      loginFormRules: {
+        id: [
+          { required: true, message: "请输入管理员帐号", trigger: "blur" }
         ],
-        region: [
-          { required: true, message: "请选择活动区域", trigger: "change" }
-        ],
-        date1: [
-          {
-            type: "date",
-            required: true,
-            message: "请选择日期",
-            trigger: "change"
-          }
-        ],
-        date2: [
-          {
-            type: "date",
-            required: true,
-            message: "请选择时间",
-            trigger: "change"
-          }
-        ],
-        type: [
-          {
-            type: "array",
-            required: true,
-            message: "请至少选择一个活动性质",
-            trigger: "change"
-          }
-        ],
-        resource: [
-          { required: true, message: "请选择活动资源", trigger: "change" }
-        ],
-        desc: [{ required: true, message: "请填写活动形式", trigger: "blur" }]
+        password: [
+          { required: true, message: "请输入管理员密码", trigger: "blur" }
+        ]
       }
     };
   },
@@ -108,7 +39,30 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          alert("submit!");
+          this.$ajax.post('/signin',{
+            id:this.loginForm.id,
+            password:this.loginForm.password
+          })
+          .then(response=>{
+            if (response.data.success) {
+              this.$notify({
+                title: '成功',
+                message: response.data.message,
+                type: 'success',
+                offset: 100
+              });
+              this.resetForm('loginForm');
+              this.$store.commit('login',response.data)
+              this.$router.push({path:'/Product'});
+            }
+            else{
+              this.$notify.error({
+                title: '失败',
+                message: response.data.message,
+                offset: 100
+              });
+            }
+          })
         } else {
           console.log("error submit!!");
           return false;
@@ -123,5 +77,12 @@ export default {
 </script>
 
 <style scoped>
-
+  .title{
+    font-size: 26px;
+    margin-bottom: 20px;
+    padding-left: 80px;
+  }
+  .loginForm{
+    height: 800px;
+  }
 </style>

@@ -11,7 +11,11 @@ import axios from 'axios';
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 
+//设置api路径
+axios.defaults.baseURL = "http://127.0.0.1:4040/admin/";
+axios.defaults.withCredentials=true;
 Vue.prototype.$ajax = axios;
+
 
 /* eslint-disable no-new */
 new Vue({

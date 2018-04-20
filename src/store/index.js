@@ -16,7 +16,8 @@ const state = {
    {id:10004,grand:'华帝',category:'抽油烟机',name:'CXW-228',tag:'T型机/自动清洗',size:'895x647x517mm',packageSize:'965x700x577mm',power:'250W',weight:'24kg',price:'2699',sales:'10'},
    {id:10005,grand:'华帝',category:'抽油烟机',name:'CXW-228',tag:'T型机/自动清洗',size:'895x647x517mm',packageSize:'965x700x577mm',power:'250W',weight:'24kg',price:'2699',sales:'10'},
    {id:10006,grand:'华帝',category:'抽油烟机',name:'CXW-228',tag:'T型机/自动清洗',size:'895x647x517mm',packageSize:'965x700x577mm',power:'250W',weight:'24kg',price:'2699',sales:'10'}
-  ]
+  ],
+  adminList:[]
 }
 
 const getters = {
@@ -51,7 +52,7 @@ const mutations = {
     router.push({
       path: '/'
     });
-  },
+  }
 }
 export default new Vuex.Store({
   state,

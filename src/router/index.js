@@ -4,6 +4,7 @@ import SideBar from '@/components/SideBar'
 import Login from '@/views/Login';
 import Product from '@/views/Product'
 import Message from '@/views/Message'
+import Admin from '@/views/Admin'
 
 Vue.use(Router)
 
@@ -23,6 +24,12 @@ export default new Router({
       path: '/Message',
       name: 'Message',
       component:Message
+    },
+    ,
+    {
+      path: '/Admin',
+      name: 'Admin',
+      component:Admin
     }
   ]
 })

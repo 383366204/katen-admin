@@ -24,7 +24,7 @@
                 style="width: 100%">
                 <el-table-column type="expand">
                   <template slot-scope="props">
-                    <el-form :label-position="left" inline class="demo-table-expand">
+                    <el-form label-position="left" inline class="demo-table-expand">
                       <el-form-item label="商品品牌">
                         <span>{{ props.row.grand }}</span>
                       </el-form-item>
@@ -101,14 +101,13 @@
                     </el-form-item>
                     <el-form-item label="商品分类" label-width="100px">
 	                    <el-select v-model="addProductForm.category" @change="handleSelect">
-						    <el-option
-						      v-for="(item,index) in category"
-						      :key="index"
-						      :label="item"
-                              :value="item"
-                              >
-						    </el-option>
-						</el-select>
+                          <el-option
+                            v-for="(item,index) in category"
+                            :key="index"
+                            :label="item"
+                            :value="item">
+                          </el-option>
+                      </el-select>
                     </el-form-item>
                     <el-form-item label="商品名称" label-width="100px">
                         <el-input v-model="addProductForm.name" auto-complete="off"></el-input>
@@ -144,33 +143,33 @@
                         </el-upload>
                     </el-form-item>
                 </el-form>
-                <el-row style="overflow: auto; text-align: center;">
+                <el-row style="clear:both; overflow: hidden; text-align: center;">
 	                <el-table
-				    :data="addProductForm.property"
-				    style="margin-bottom: 20px;">
-					    <el-table-column
-					      prop="proName"
-					      label="属性名">
-					    </el-table-column>
-					    <el-table-column
-					      prop="proValue"
-					      label="属性值">
-					    </el-table-column>
-					    <el-table-column label="操作" >
-					    <template slot-scope="scope"> 
-					        <el-button
-					          size="small"
-					          type="danger"
-					          @click="deleteSpecs(scope.$index)">删除</el-button>
-					    </template>
-					    </el-table-column>
-					</el-table>
-					<el-button type="primary" @click="propertyFormVisible = true" style="margin-bottom: 10px;">添加属性</el-button>
-				</el-row>
-              <div slot="footer" class="dialog-footer">
-                <el-button @click="addProductFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="updateFood">确 定</el-button>
-              </div>
+                    :data="addProductForm.property"
+                    style="margin-bottom: 20px;">
+                      <el-table-column
+                        prop="proName"
+                        label="属性名">
+                      </el-table-column>
+                      <el-table-column
+                        prop="proValue"
+                        label="属性值">
+                      </el-table-column>
+                      <el-table-column label="操作" >
+                      <template slot-scope="scope"> 
+                          <el-button
+                            size="small"
+                            type="danger"
+                            @click="deleteSpecs(scope.$index)">删除</el-button>
+                      </template>
+                      </el-table-column>
+                  </el-table>
+					        <el-button type="primary" @click="propertyFormVisible = true" style="margin-bottom: 10px;">添加属性</el-button>
+				        </el-row>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="addProductFormVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="updateFood">确 定</el-button>
+                </div>
             </el-dialog>
             <!-- <el-dialog title="修改商品信息" v-model="dialogFormVisible">
                 <el-form :model="selectTable">
@@ -275,23 +274,23 @@
 export default {
   data() {
     return {
-      addProductFormVisible:false,
+      addProductFormVisible: false,
       addProductForm: {
-        id:10001,
-        grand:'华帝',
-        category:'抽油烟机',
-        name:'CXW-228',
-        tag:'T型机/自动清洗',
-        size:'895x647x517mm',
-        packageSize:'965x700x577mm',
-        power:'250W',
-        weight:'24kg',
-        price:'2699',
-        property:[]
+        id: 10001,
+        grand: "华帝",
+        category: "抽油烟机",
+        name: "CXW-228",
+        tag: "T型机/自动清洗",
+        size: "895x647x517mm",
+        packageSize: "965x700x577mm",
+        power: "250W",
+        weight: "24kg",
+        price: "2699",
+        property: []
       },
-      category:['抽油烟机','燃气灶','消毒碗柜','热水器'],
-      searchFilter:'',
-      selectFilter:'',
+      category: ["抽油烟机", "燃气灶", "消毒碗柜", "热水器"],
+      searchFilter: "",
+      selectFilter: "",
       uploadForm: {
         auth: { Authorization: this.$store.state.token },
         url: "http://127.0.0.1:4040/admin/productImg/"
@@ -305,8 +304,8 @@ export default {
       selectMenu: {},
       selectIndex: null,
       propertyForm: {
-        proName: '',
-        proValue: '',
+        proName: "",
+        proValue: ""
       },
       propertyFormrules: {
         specs: [{ required: true, message: "请输入属性", trigger: "blur" }]
@@ -401,11 +400,11 @@ export default {
       return "";
     },
     addspecs() {
-    //   this.specs.push({ ...this.specsForm });
-    //   this.specsForm.specs = "";
-    //   this.specsForm.packing_fee = 0;
-    //   this.specsForm.price = 20;
-    //   this.specsFormVisible = false;
+      //   this.specs.push({ ...this.specsForm });
+      //   this.specsForm.specs = "";
+      //   this.specsForm.packing_fee = 0;
+      //   this.specsForm.price = 20;
+      //   this.specsFormVisible = false;
     },
     deleteSpecs(index) {
       this.specs.splice(index, 1);
@@ -525,8 +524,8 @@ export default {
 </script>
 
 <style scoped>
-.el-row{
-    margin: 10px;
+.el-row {
+  margin: 10px;
 }
 .demo-table-expand {
   font-size: 0;
@@ -545,14 +544,14 @@ export default {
   float: left;
   margin-left: 38%;
 }
-.demo-table-expand>>> .el-form-item__content {
+.demo-table-expand>>>.el-form-item__content {
   float: left;
 }
-.el-select >>> .el-input {
-    width: 130px;
-  }
-.input-with-select >>> .el-input-group__prepend {
-    background-color: #fff;
+.el-select>>>.el-input {
+  width: 130px;
+}
+.input-with-select>>>.el-input-group__prepend {
+  background-color: #fff;
 }
 .table_container {
   padding: 20px;
@@ -561,6 +560,8 @@ export default {
   display: flex;
   justify-content: flex-start;
   margin-top: 8px;
+}
+.avatar-uploader {
 }
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
@@ -588,14 +589,14 @@ export default {
 .el-table>>>.el-table__header th {
   text-align: center;
 }
-.addDialog .el-form-item:nth-child(-n+9){
-    width: 50%;
-    float: left;
+.addDialog .el-form-item:nth-child(-n + 10) {
+  width: 50%;
+  float: left;
 }
-.addDialog .el-form-item>>>.el-select{
-    width: 100%;
+.addDialog .el-form-item>>>.el-select {
+  width: 100%;
 }
-.addDialog .el-form-item>>>.el-input{
-    width: 100%;
+.addDialog .el-form-item>>>.el-input {
+  width: 100%;
 }
 </style>
