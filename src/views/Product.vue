@@ -112,9 +112,9 @@
                     <el-form-item label="商品名称" label-width="100px">
                         <el-input v-model="addProductForm.name" auto-complete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品标签" label-width="100px">
-                        <el-input v-model="addProductForm.tag"></el-input>
-                    </el-form-item>       
+                    <el-form-item label="商品价格" label-width="100px">
+                        <el-input v-model="addProductForm.price"></el-input>
+                    </el-form-item>
                     <el-form-item label="商品尺寸" label-width="100px">
                         <el-input v-model="addProductForm.size"></el-input>
                     </el-form-item>
@@ -127,8 +127,8 @@
                     <el-form-item label="商品重量" label-width="100px">
                         <el-input v-model="addProductForm.weight"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品价格" label-width="100px">
-                        <el-input v-model="addProductForm.price"></el-input>
+                    <el-form-item label="商品标签" label-width="100px">
+                        <el-input v-model="addProductForm.tag"></el-input>
                     </el-form-item>
                     <el-form-item label="商品图片" label-width="100px">
                         <el-upload
@@ -250,19 +250,19 @@
             </el-dialog> -->
 			
             <el-dialog title="添加属性" :visible.sync="propertyFormVisible" width="30%">
-			  	<el-form :rules="propertyFormrules" :model="propertyForm">
-				    <el-form-item label="属性名" label-width="100px" prop="specs">
-				     	<el-input v-model="propertyForm.proName" auto-complete="off"></el-input>
-				    </el-form-item>
-					<el-form-item label="属性值" label-width="100px">
-						<el-input v-model="propertyForm.proValue" auto-complete="off"></el-input>
-					</el-form-item>
-			  	</el-form>
-			  <div slot="footer" class="dialog-footer">
-			    <el-button @click="propertyFormVisible = false">取 消</el-button>
-			    <el-button type="primary" @click="addspecs">确 定</el-button>
-			  </div>
-			</el-dialog>
+              <el-form :rules="propertyFormrules" :model="propertyForm">
+                <el-form-item label="属性名" label-width="100px" prop="specs">
+                  <el-input v-model="propertyForm.proName" auto-complete="off"></el-input>
+                </el-form-item>
+              <el-form-item label="属性值" label-width="100px">
+                <el-input v-model="propertyForm.proValue" auto-complete="off"></el-input>
+              </el-form-item>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                <el-button @click="propertyFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="addspecs">确 定</el-button>
+              </div>
+            </el-dialog>
         </div>
     </main>
 </template>
@@ -589,7 +589,7 @@ export default {
 .el-table>>>.el-table__header th {
   text-align: center;
 }
-.addDialog .el-form-item:nth-child(-n + 10) {
+.addDialog .el-form-item:nth-child(-n + 8) {
   width: 50%;
   float: left;
 }
