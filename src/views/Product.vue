@@ -131,7 +131,7 @@
                         <el-input v-model="addProductForm.tag"></el-input>
                     </el-form-item>
                     <el-form-item label="商品图片" label-width="100px">
-                        <el-upload
+                        <!-- <el-upload
                           class="avatar-uploader"
                           :action="uploadForm.url"
                           :headers="uploadForm.auth"
@@ -140,6 +140,19 @@
                           :before-upload="beforeAvatarUpload">
                           <img v-if="addProductForm.imgUrl" :src="addProductForm.imgUrl" class="avatar">
                           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload> -->
+                        <el-upload
+                            :limit=4
+                            list-type="picture-card"
+                            :on-exceed="handleExceed"
+                            ref="upload"
+                            action="https://jsonplaceholder.typicode.com/posts/"
+                            :on-preview="handlePreview"
+                            :on-remove="handleRemove"
+                            :file-list="fileList"
+                            :auto-upload="false">
+                            <i slot="trigger" class="el-icon-plus"></i>
+                            <div slot="tip" class="el-upload__tip">请将图片命名为 [数字.png] 的形式，1.png的将作为主图</div>
                         </el-upload>
                     </el-form-item>
                 </el-form>
@@ -295,6 +308,9 @@ export default {
         auth: { Authorization: this.$store.state.token },
         url: "http://127.0.0.1:4040/admin/productImg/"
       },
+
+      fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
+
       offset: 0,
       limit: 20,
       count: 0,
@@ -518,6 +534,23 @@ export default {
       } catch (err) {
         console.log("更新餐馆信息失败", err);
       }
+    },
+    submitUpload() {
+        console.log(this);
+        this.$refs.upload.submit();
+    },
+    handleRemove(file, fileList) {
+    console.log(file, fileList);
+    },
+    handlePreview(file) {
+    console.log(file);
+    },
+    handleExceed(files,fileList){
+        this.$notify.error({
+          title: '错误',
+          message: '每个商品只能最多上传'+fileList.length+'张图片',
+          offset:100
+        });
     }
   }
 };
@@ -592,6 +625,9 @@ export default {
 .addDialog .el-form-item:nth-child(-n + 8) {
   width: 50%;
   float: left;
+}
+.addDialog .el-form-item:nth-child(9) {
+  clear: both;
 }
 .addDialog .el-form-item>>>.el-select {
   width: 100%;
