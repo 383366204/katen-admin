@@ -96,10 +96,10 @@
 
             <el-dialog class="addDialog" title="添加商品" :visible.sync="addProductFormVisible" width="50%">
                 <el-form :rules="addProductFormRules" :model="addProductForm">
-                    <el-form-item label="商品品牌" label-width="100px">
+                    <el-form-item label="商品品牌" label-width="100px" prop="grand">
                         <el-input v-model="addProductForm.grand" auto-complete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品分类" label-width="100px">
+                    <el-form-item label="商品分类" label-width="100px" prop="category">
 	                    <el-select v-model="addProductForm.category" @change="handleSelect">
                           <el-option
                             v-for="(item,index) in category"
@@ -109,35 +109,35 @@
                           </el-option>
                       </el-select>
                     </el-form-item>
-                    <el-form-item label="商品名称" label-width="100px">
+                    <el-form-item label="商品名称" label-width="100px" prop="name">
                         <el-input v-model="addProductForm.name" auto-complete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品价格" label-width="100px">
+                    <el-form-item label="商品价格" label-width="100px" prop="price">
                         <el-input v-model="addProductForm.price">
                           <template slot="append">￥</template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="商品尺寸" label-width="100px">
+                    <el-form-item label="商品尺寸" label-width="100px" prop="size">
                         <el-input v-model="addProductForm.size">
                           <template slot="append">mm</template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="包装尺寸" label-width="100px">
+                    <el-form-item label="包装尺寸" label-width="100px" prop="packageSize">
                         <el-input v-model="addProductForm.packageSize">
                           <template slot="append">mm</template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="商品功率" label-width="100px">
+                    <el-form-item label="商品功率" label-width="100px" prop="power">
                         <el-input v-model="addProductForm.power">
                            <template slot="append">W</template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="商品重量" label-width="100px">
+                    <el-form-item label="商品重量" label-width="100px" prop="weight">
                         <el-input v-model="addProductForm.weight">
                           <template slot="append">kg</template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="商品标签" label-width="100px">
+                    <el-form-item label="商品标签" label-width="100px" prop="tag">
                         <el-input v-model="addProductForm.tag" placeholder="标签之间用'/'隔开 "></el-input>
                     </el-form-item>
                     <el-form-item label="商品图片" label-width="100px">
@@ -167,7 +167,7 @@
                         </el-upload>
                     </el-form-item>
                 </el-form>
-                <el-row style="clear:both; overflow: hidden; text-align: center;">
+                <el-row>
 	                <el-table
                     :data="addProductForm.property"
                     style="margin-bottom: 20px;">
@@ -331,7 +331,8 @@ export default {
           {require:true,message:'请输入商品的重量',trigger:'blur'}
         ],
         price:[
-          {require:true,message:'请输入商品的价格',trigger:'blur'}
+          {require:true,message:'请输入商品的价格',trigger:'blur'},
+          {type:"number",message:'商品的价格只能为数字',trigger:'blur'}
         ]
       },
       addProductForm: {
