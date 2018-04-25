@@ -95,7 +95,7 @@
             </div>
 
             <el-dialog class="addDialog" title="添加商品" :visible.sync="addProductFormVisible" width="50%">
-                <el-form :model="addProductForm">
+                <el-form :rules="addProductFormRules" :model="addProductForm">
                     <el-form-item label="商品品牌" label-width="100px">
                         <el-input v-model="addProductForm.grand" auto-complete="off"></el-input>
                     </el-form-item>
@@ -113,22 +113,32 @@
                         <el-input v-model="addProductForm.name" auto-complete="off"></el-input>
                     </el-form-item>
                     <el-form-item label="商品价格" label-width="100px">
-                        <el-input v-model="addProductForm.price"></el-input>
+                        <el-input v-model="addProductForm.price">
+                          <template slot="append">￥</template>
+                        </el-input>
                     </el-form-item>
                     <el-form-item label="商品尺寸" label-width="100px">
-                        <el-input v-model="addProductForm.size"></el-input>
+                        <el-input v-model="addProductForm.size">
+                          <template slot="append">mm</template>
+                        </el-input>
                     </el-form-item>
                     <el-form-item label="包装尺寸" label-width="100px">
-                        <el-input v-model="addProductForm.packageSize"></el-input>
+                        <el-input v-model="addProductForm.packageSize">
+                          <template slot="append">mm</template>
+                        </el-input>
                     </el-form-item>
                     <el-form-item label="商品功率" label-width="100px">
-                        <el-input v-model="addProductForm.power"></el-input>
+                        <el-input v-model="addProductForm.power">
+                           <template slot="append">W</template>
+                        </el-input>
                     </el-form-item>
                     <el-form-item label="商品重量" label-width="100px">
-                        <el-input v-model="addProductForm.weight"></el-input>
+                        <el-input v-model="addProductForm.weight">
+                          <template slot="append">kg</template>
+                        </el-input>
                     </el-form-item>
                     <el-form-item label="商品标签" label-width="100px">
-                        <el-input v-model="addProductForm.tag"></el-input>
+                        <el-input v-model="addProductForm.tag" placeholder="标签之间用'/'隔开 "></el-input>
                     </el-form-item>
                     <el-form-item label="商品图片" label-width="100px">
                         <!-- <el-upload
@@ -146,7 +156,8 @@
                             list-type="picture-card"
                             :on-exceed="handleExceed"
                             ref="upload"
-                            action="https://jsonplaceholder.typicode.com/posts/"
+                            :action="uploadForm.url"
+                            :headers="uploadForm.auth"
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
                             :file-list="fileList"
@@ -169,19 +180,24 @@
                         label="属性值">
                       </el-table-column>
                       <el-table-column label="操作" >
-                      <template slot-scope="scope"> 
-                          <el-button
-                            size="small"
-                            type="danger"
-                            @click="deleteSpecs(scope.$index)">删除</el-button>
+                      <template slot-scope="scope">
+                        <el-button
+                          size="small"
+                          @click="editProperty(scope.$index)">编辑
+                        </el-button>
+                        <el-button
+                          size="small"
+                          type="danger"
+                          @click="deleteProperty(scope.$index)">删除
+                        </el-button>  
                       </template>
                       </el-table-column>
                   </el-table>
-					        <el-button type="primary" @click="propertyFormVisible = true" style="margin-bottom: 10px;">添加属性</el-button>
+					        <el-button type="primary" @click="addProperty()" style="margin-bottom: 10px;">添加属性</el-button>
 				        </el-row>
                 <div slot="footer" class="dialog-footer">
                   <el-button @click="addProductFormVisible = false">取 消</el-button>
-                  <el-button type="primary" @click="updateFood">确 定</el-button>
+                  <el-button type="primary" @click="addProduct">确 定</el-button>
                 </div>
             </el-dialog>
             <!-- <el-dialog title="修改商品信息" v-model="dialogFormVisible">
@@ -250,7 +266,7 @@
 					        <el-button
 					          size="small"
 					          type="danger"
-					          @click="deleteSpecs(scope.$index)">删除</el-button>
+					          @click="deleteProperty(scope.$index)">删除</el-button>
 					    </template>
 					    </el-table-column>
 					</el-table>
@@ -258,22 +274,23 @@
 				</el-row>
               <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="updateFood">确 定</el-button>
+                <el-button type="primary" @click="addProduct">确 定</el-button>
               </div>
             </el-dialog> -->
-			
-            <el-dialog title="添加属性" :visible.sync="propertyFormVisible" width="30%">
-              <el-form :rules="propertyFormrules" :model="propertyForm">
-                <el-form-item label="属性名" label-width="100px" prop="specs">
+
+            <!-- 属性模态窗 -->
+            <el-dialog :title="propertyType[propertyTypeIndex]" :visible.sync="propertyFormVisible" width="30%" @close="propertyFormClose()">
+              <el-form :rules="propertyFormRules" :model="propertyForm" ref="propertyForm">
+                <el-form-item label="属性名" label-width="100px" prop="proName">
                   <el-input v-model="propertyForm.proName" auto-complete="off"></el-input>
                 </el-form-item>
-              <el-form-item label="属性值" label-width="100px">
+              <el-form-item label="属性值" label-width="100px" prop="proValue">
                 <el-input v-model="propertyForm.proValue" auto-complete="off"></el-input>
               </el-form-item>
               </el-form>
               <div slot="footer" class="dialog-footer">
                 <el-button @click="propertyFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="addspecs">确 定</el-button>
+                <el-button type="primary" @click="submitProperty('propertyForm')">确 定</el-button>
               </div>
             </el-dialog>
         </div>
@@ -283,22 +300,50 @@
 <script>
 // import headTop from '../components/headTop'
 // import {baseUrl, baseImgPath} from '@/config/env'
-// import {getFoods, getFoodsCount, getMenu, updateFood, deleteFood, getResturantDetail, getMenuById} from '@/api/getData'
+// import {getFoods, getFoodsCount, getMenu, addProduct, deleteFood, getResturantDetail, getMenuById} from '@/api/getData'
 export default {
   data() {
     return {
       addProductFormVisible: false,
+      addProductFormRules: {
+        grand:[
+          {require:true,message:'请输入商品品牌',trigger:'blur'}
+        ],
+        category:[
+          {require:true,message:'请选择商品的类型',trigger:'blur'}
+        ],
+        name:[
+          {require:true,message:'请输入商品的名称',trigger:'blur'}
+        ],
+        tag:[
+          {require:true,message:'请输入商品的标签',trigger:'blur'}
+        ],
+        size:[
+          {require:true,message:'请输入商品的尺寸',trigger:'blur'}
+        ],
+        packageSize:[
+          {require:true,message:'请输入商品的包装尺寸',trigger:'blur'}
+        ],
+        power:[
+          {require:true,message:'请输入商品的功率',trigger:'blur'}
+        ],
+        weight:[
+          {require:true,message:'请输入商品的重量',trigger:'blur'}
+        ],
+        price:[
+          {require:true,message:'请输入商品的价格',trigger:'blur'}
+        ]
+      },
       addProductForm: {
-        id: 10001,
         grand: "华帝",
         category: "抽油烟机",
         name: "CXW-228",
         tag: "T型机/自动清洗",
-        size: "895x647x517mm",
-        packageSize: "965x700x577mm",
-        power: "250W",
-        weight: "24kg",
-        price: "2699",
+        size: "895x647x517",
+        packageSize: "965x700x577",
+        power: 250,
+        weight: 24,
+        price: 2699,
         property: []
       },
       category: ["抽油烟机", "燃气灶", "消毒碗柜", "热水器"],
@@ -306,7 +351,7 @@ export default {
       selectFilter: "",
       uploadForm: {
         auth: { Authorization: this.$store.state.token },
-        url: "http://127.0.0.1:4040/admin/productImg/"
+        url: "http://127.0.0.1:4040/admin/product/img/"
       },
 
       fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
@@ -319,15 +364,20 @@ export default {
       menuOptions: [],
       selectMenu: {},
       selectIndex: null,
+
+      propertyTypeIndex:0,
+      propertyType:['添加属性','修改属性'],
       propertyForm: {
         proName: "",
         proValue: ""
       },
-      propertyFormrules: {
-        specs: [{ required: true, message: "请输入属性", trigger: "blur" }]
+      propertyFormRules: {
+        proName: [{ required: true, message: "请输入属性名", trigger: "blur" }],
+        proValue: [{ required: true, message: "请输入属性值", trigger: "blur" }]
       },
       propertyFormVisible: false,
-      expendRow: []
+      editPropertyIndex:0,
+      expendRow:[]
     };
   },
   created() {
@@ -415,15 +465,65 @@ export default {
       }
       return "";
     },
-    addspecs() {
-      //   this.specs.push({ ...this.specsForm });
-      //   this.specsForm.specs = "";
-      //   this.specsForm.packing_fee = 0;
-      //   this.specsForm.price = 20;
-      //   this.specsFormVisible = false;
+    submitProperty(formName) {
+       this.$refs[formName].validate(valid => {
+        if (valid) {
+          // 若是添加属性
+          if (this.propertyTypeIndex==0) {
+              // 判断是否有重复的属性名
+            if (this.addProductForm.property.every(ele=>{return ele.proName!=this.propertyForm.proName})) {
+              // 将属性push
+              this.addProductForm.property.push(JSON.parse(JSON.stringify(this.propertyForm)));
+
+              this.propertyFormVisible = false;
+            }else{
+              this.$notify.error({
+                title: '错误',
+                message: '不能有两个相同的属性名',
+                offset:100
+              });
+            }
+          }
+          // 若是修改属性
+          else if(this.propertyTypeIndex==1){
+            var notRepeat = true;
+            this.addProductForm.property.forEach((value,i) => {
+              if (i!=this.editPropertyIndex&&value.proName==this.propertyForm.proName) {
+                notRepeat=false;
+              }
+            })
+            if (notRepeat) {
+              this.addProductForm.property[this.editPropertyIndex].proName = this.propertyForm.proName;
+              this.addProductForm.property[this.editPropertyIndex].proValue = this.propertyForm.proValue;
+              this.propertyFormVisible = false;
+            }
+            else{
+              this.$notify.error({
+                title: '错误',
+                message: '不能有两个相同的属性名',
+                offset:100
+              });
+            }
+          }
+        }
+        else{
+          console.log('err submit');
+        }
+       });
     },
-    deleteSpecs(index) {
-      this.specs.splice(index, 1);
+    addProperty(){
+      this.propertyFormVisible = true;
+      this.propertyTypeIndex=0;
+    },
+    editProperty(index){
+      this.propertyTypeIndex=1;
+      this.editPropertyIndex = index;
+      this.propertyFormVisible=true;
+      this.propertyForm.proName=this.addProductForm.property[index].proName;
+      this.propertyForm.proValue=this.addProductForm.property[index].proValue;
+    },
+    deleteProperty(index) {
+      this.addProductForm.property.splice(index, 1);
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
@@ -510,30 +610,32 @@ export default {
       }
       return isRightType && isLt2M;
     },
-    async updateFood() {
-      this.dialogFormVisible = false;
-      try {
-        const subData = {
-          new_category_id: this.selectMenu.value,
-          specs: this.specs
-        };
-        const postData = { ...this.selectTable, ...subData };
-        const res = await updateFood(postData);
-        if (res.status == 1) {
-          this.$message({
-            type: "success",
-            message: "更新食品信息成功"
-          });
-          this.getFoods();
-        } else {
-          this.$message({
-            type: "error",
-            message: res.message
+    async addProduct() {
+      let addProductData = await JSON.parse(JSON.stringify(this.addProductForm));
+      addProductData.tag = addProductData.tag.split('/');
+
+      console.log(addProductData);
+
+      this.$ajax.post('/product/',addProductData)
+      .then(response=>{
+        if (response.data.success) {
+            this.$notify({
+                title: '成功',
+                message: response.data.message,
+                offset:100,
+                type: 'success'
+              });
+        }else{
+          this.$notify.error({
+            title: '失败',
+            message: response.data.message,
+            offset:100
           });
         }
-      } catch (err) {
-        console.log("更新餐馆信息失败", err);
-      }
+      })
+      .catch(err=>{
+        console.log(err);
+      })
     },
     submitUpload() {
         console.log(this);
@@ -551,6 +653,12 @@ export default {
           message: '每个商品只能最多上传'+fileList.length+'张图片',
           offset:100
         });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+    },
+    propertyFormClose(){
+      this.resetForm('propertyForm');
     }
   }
 };
