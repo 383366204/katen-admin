@@ -94,13 +94,13 @@
                 </el-pagination>
             </div>
 
-            <el-dialog class="addDialog" title="添加商品" :visible.sync="addProductFormVisible" width="50%">
-                <el-form :rules="addProductFormRules" :model="addProductForm">
+            <el-dialog class="addDialog" title="添加商品" :visible.sync="addProductFormVisible" width="60%">
+                <el-form :rules="addProductFormRules" :model="addProductForm" ref="addProductForm">
                     <el-form-item label="商品品牌" label-width="100px" prop="grand">
-                        <el-input v-model="addProductForm.grand" auto-complete="off"></el-input>
+                        <el-input v-model="addProductForm.grand" auto-complete="off" placeholder="请填写商品的品牌"></el-input>
                     </el-form-item>
                     <el-form-item label="商品分类" label-width="100px" prop="category">
-	                    <el-select v-model="addProductForm.category" @change="handleSelect">
+	                    <el-select v-model="addProductForm.category" @change="handleSelect"  placeholder="请选择商品的分类">
                           <el-option
                             v-for="(item,index) in category"
                             :key="index"
@@ -110,35 +110,35 @@
                       </el-select>
                     </el-form-item>
                     <el-form-item label="商品名称" label-width="100px" prop="name">
-                        <el-input v-model="addProductForm.name" auto-complete="off"></el-input>
+                        <el-input v-model="addProductForm.name" auto-complete="off"  placeholder="请填写商品的名称"></el-input>
                     </el-form-item>
                     <el-form-item label="商品价格" label-width="100px" prop="price">
-                        <el-input v-model="addProductForm.price">
+                        <el-input v-model.number="addProductForm.price"  placeholder="请填写商品的价格">
                           <template slot="append">￥</template>
                         </el-input>
                     </el-form-item>
                     <el-form-item label="商品尺寸" label-width="100px" prop="size">
-                        <el-input v-model="addProductForm.size">
+                        <el-input v-model="addProductForm.size" placeholder="商品尺寸,格式如895x647x517">
                           <template slot="append">mm</template>
                         </el-input>
                     </el-form-item>
                     <el-form-item label="包装尺寸" label-width="100px" prop="packageSize">
-                        <el-input v-model="addProductForm.packageSize">
+                        <el-input v-model="addProductForm.packageSize"  placeholder="包装尺寸,格式如965x700x577">
                           <template slot="append">mm</template>
                         </el-input>
                     </el-form-item>
                     <el-form-item label="商品功率" label-width="100px" prop="power">
-                        <el-input v-model="addProductForm.power">
+                        <el-input v-model.number="addProductForm.power" placeholder="请填写商品的功率">
                            <template slot="append">W</template>
                         </el-input>
                     </el-form-item>
                     <el-form-item label="商品重量" label-width="100px" prop="weight">
-                        <el-input v-model="addProductForm.weight">
+                        <el-input v-model.number="addProductForm.weight" placeholder="请填写商品的重量">
                           <template slot="append">kg</template>
                         </el-input>
                     </el-form-item>
                     <el-form-item label="商品标签" label-width="100px" prop="tag">
-                        <el-input v-model="addProductForm.tag" placeholder="标签之间用'/'隔开 "></el-input>
+                        <el-input v-model="addProductForm.tag" placeholder="请填写商品的标签，多个标签之间用'/'隔开"></el-input>
                     </el-form-item>
                     <el-form-item label="商品图片" label-width="100px">
                         <!-- <el-upload
@@ -152,7 +152,10 @@
                           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         </el-upload> -->
                         <el-upload
+                            name="productImg"
+                            :data="addProductForm"
                             :limit=4
+                            multiple
                             list-type="picture-card"
                             :on-exceed="handleExceed"
                             ref="upload"
@@ -160,6 +163,7 @@
                             :headers="uploadForm.auth"
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
+                            :before-upload="beforeAvatarUpload"
                             :file-list="fileList"
                             :auto-upload="false">
                             <i slot="trigger" class="el-icon-plus"></i>
@@ -197,7 +201,7 @@
 				        </el-row>
                 <div slot="footer" class="dialog-footer">
                   <el-button @click="addProductFormVisible = false">取 消</el-button>
-                  <el-button type="primary" @click="addProduct">确 定</el-button>
+                  <el-button type="primary" @click="addProduct('addProductForm')">确 定</el-button>
                 </div>
             </el-dialog>
             <!-- <el-dialog title="修改商品信息" v-model="dialogFormVisible">
@@ -305,36 +309,6 @@ export default {
   data() {
     return {
       addProductFormVisible: false,
-      addProductFormRules: {
-        grand:[
-          {require:true,message:'请输入商品品牌',trigger:'blur'}
-        ],
-        category:[
-          {require:true,message:'请选择商品的类型',trigger:'blur'}
-        ],
-        name:[
-          {require:true,message:'请输入商品的名称',trigger:'blur'}
-        ],
-        tag:[
-          {require:true,message:'请输入商品的标签',trigger:'blur'}
-        ],
-        size:[
-          {require:true,message:'请输入商品的尺寸',trigger:'blur'}
-        ],
-        packageSize:[
-          {require:true,message:'请输入商品的包装尺寸',trigger:'blur'}
-        ],
-        power:[
-          {require:true,message:'请输入商品的功率',trigger:'blur'}
-        ],
-        weight:[
-          {require:true,message:'请输入商品的重量',trigger:'blur'}
-        ],
-        price:[
-          {require:true,message:'请输入商品的价格',trigger:'blur'},
-          {type:"number",message:'商品的价格只能为数字',trigger:'blur'}
-        ]
-      },
       addProductForm: {
         grand: "华帝",
         category: "抽油烟机",
@@ -344,8 +318,61 @@ export default {
         packageSize: "965x700x577",
         power: 250,
         weight: 24,
-        price: 2699,
+        price: 3600,
         property: []
+      },
+      addProductFormRules: {
+        grand: [{ required: true, message: "请输入商品品牌", trigger: "blur" }],
+        category: [
+          { required: true, message: "请选择商品的类型", trigger: "blur" }
+        ],
+        name: [{ required: true, message: "请输入商品的名称", trigger: "blur" }],
+        tag: [
+          {pattern:/^[^/].+(\/.+)?[^/]$/, message:"请输入正确的商品标签，若有多个标签请用 ' / ' 隔开",trigger:"blur"}
+        ],
+        size: [
+          { required: true, message: "请输入商品的尺寸", trigger: "blur" },
+          { pattern:/^\d+x\d+x\d+$/, message: "请输入正确的商品尺寸", trigger: "blur" }
+        ],
+        packageSize: [
+          { required: true, message: "请输入商品的包装尺寸", trigger: "blur" },
+          { pattern:/^\d+x\d+x\d+$/, message: "请输入正确的包装尺寸", trigger: "blur" }
+        ],
+        power: [
+          {
+            required: true,
+            message: "请输入商品的功率",
+            trigger: "blur"
+          },{
+            type:"number",
+            message: "商品的功率需为数字",
+            trigger: "blur"
+          }
+        ],
+        weight: [
+          {
+            required: true,
+            message: "请输入商品的重量",
+            trigger: "blur"
+          },
+          {
+            type:"number",
+            message: "商品的重量需为数字",
+            trigger: "blur"
+          }
+        ],
+        price: [
+          {
+            required: true,
+            message: "请输入商品的价格",
+            trigger: "blur"
+          },
+          {
+            type:"number",
+            message: "商品的价格需为数字",
+            trigger: "blur"
+          }
+        ]
       },
       category: ["抽油烟机", "燃气灶", "消毒碗柜", "热水器"],
       searchFilter: "",
@@ -355,7 +382,18 @@ export default {
         url: "http://127.0.0.1:4040/admin/product/img/"
       },
 
-      fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}],
+      fileList: [
+        {
+          name: "food.jpeg",
+          url:
+            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
+        },
+        {
+          name: "food2.jpeg",
+          url:
+            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
+        }
+      ],
 
       offset: 0,
       limit: 20,
@@ -366,8 +404,8 @@ export default {
       selectMenu: {},
       selectIndex: null,
 
-      propertyTypeIndex:0,
-      propertyType:['添加属性','修改属性'],
+      propertyTypeIndex: 0,
+      propertyType: ["添加属性", "修改属性"],
       propertyForm: {
         proName: "",
         proValue: ""
@@ -377,8 +415,8 @@ export default {
         proValue: [{ required: true, message: "请输入属性值", trigger: "blur" }]
       },
       propertyFormVisible: false,
-      editPropertyIndex:0,
-      expendRow:[]
+      editPropertyIndex: 0,
+      expendRow: []
     };
   },
   created() {
@@ -467,109 +505,119 @@ export default {
       return "";
     },
     submitProperty(formName) {
-       this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           // 若是添加属性
-          if (this.propertyTypeIndex==0) {
-              // 判断是否有重复的属性名
-            if (this.addProductForm.property.every(ele=>{return ele.proName!=this.propertyForm.proName})) {
+          if (this.propertyTypeIndex == 0) {
+            // 判断是否有重复的属性名
+            if (
+              this.addProductForm.property.every(ele => {
+                return ele.proName != this.propertyForm.proName;
+              })
+            ) {
               // 将属性push
-              this.addProductForm.property.push(JSON.parse(JSON.stringify(this.propertyForm)));
+              this.addProductForm.property.push(
+                JSON.parse(JSON.stringify(this.propertyForm))
+              );
 
               this.propertyFormVisible = false;
-            }else{
+            } else {
               this.$notify.error({
-                title: '错误',
-                message: '不能有两个相同的属性名',
-                offset:100
+                title: "错误",
+                message: "不能有两个相同的属性名",
+                offset: 100
               });
             }
-          }
-          // 若是修改属性
-          else if(this.propertyTypeIndex==1){
+          } else if (this.propertyTypeIndex == 1) {
+            // 若是修改属性
             var notRepeat = true;
-            this.addProductForm.property.forEach((value,i) => {
-              if (i!=this.editPropertyIndex&&value.proName==this.propertyForm.proName) {
-                notRepeat=false;
+            this.addProductForm.property.forEach((value, i) => {
+              if (
+                i != this.editPropertyIndex &&
+                value.proName == this.propertyForm.proName
+              ) {
+                notRepeat = false;
               }
-            })
+            });
             if (notRepeat) {
-              this.addProductForm.property[this.editPropertyIndex].proName = this.propertyForm.proName;
-              this.addProductForm.property[this.editPropertyIndex].proValue = this.propertyForm.proValue;
+              this.addProductForm.property[
+                this.editPropertyIndex
+              ].proName = this.propertyForm.proName;
+              this.addProductForm.property[
+                this.editPropertyIndex
+              ].proValue = this.propertyForm.proValue;
               this.propertyFormVisible = false;
-            }
-            else{
+            } else {
               this.$notify.error({
-                title: '错误',
-                message: '不能有两个相同的属性名',
-                offset:100
+                title: "错误",
+                message: "不能有两个相同的属性名",
+                offset: 100
               });
             }
           }
+        } else {
+          console.log("err submit");
         }
-        else{
-          console.log('err submit');
-        }
-       });
+      });
     },
-    addProperty(){
+    addProperty() {
       this.propertyFormVisible = true;
-      this.propertyTypeIndex=0;
+      this.propertyTypeIndex = 0;
     },
-    editProperty(index){
-      this.propertyTypeIndex=1;
+    editProperty(index) {
+      this.propertyTypeIndex = 1;
       this.editPropertyIndex = index;
-      this.propertyFormVisible=true;
-      this.propertyForm.proName=this.addProductForm.property[index].proName;
-      this.propertyForm.proValue=this.addProductForm.property[index].proValue;
+      this.propertyFormVisible = true;
+      this.propertyForm.proName = this.addProductForm.property[index].proName;
+      this.propertyForm.proValue = this.addProductForm.property[index].proValue;
     },
     deleteProperty(index) {
       this.addProductForm.property.splice(index, 1);
     },
     handleSizeChange(val) {
-      console.log(`每页 ${val} 条`);
+      // console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) {
-      this.currentPage = val;
-      this.offset = (val - 1) * this.limit;
-      this.getFoods();
+      // this.currentPage = val;
+      // this.offset = (val - 1) * this.limit;
+      // this.getFoods();
     },
     expand(row, status) {
-      if (status) {
-        this.getSelectItemData(row);
-      } else {
-        const index = this.expendRow.indexOf(row.index);
-        this.expendRow.splice(index, 1);
-      }
+      // if (status) {
+      //   this.getSelectItemData(row);
+      // } else {
+      //   const index = this.expendRow.indexOf(row.index);
+      //   this.expendRow.splice(index, 1);
+      // }
     },
     handleEdit(row) {
       this.getSelectItemData(row, "edit");
       this.dialogFormVisible = true;
     },
     async getSelectItemData(row, type) {
-      const restaurant = await getResturantDetail(row.restaurant_id);
-      const category = await getMenuById(row.category_id);
-      this.selectTable = {
-        ...row,
-        ...{
-          restaurant_name: restaurant.name,
-          restaurant_address: restaurant.address,
-          category_name: category.name
-        }
-      };
+      // const restaurant = await getResturantDetail(row.restaurant_id);
+      // const category = await getMenuById(row.category_id);
+      // this.selectTable = {
+      //   ...row,
+      //   ...{
+      //     restaurant_name: restaurant.name,
+      //     restaurant_address: restaurant.address,
+      //     category_name: category.name
+      //   }
+      // };
 
-      this.selectMenu = { label: category.name, value: row.category_id };
-      this.tableData.splice(row.index, 1, { ...this.selectTable });
-      this.$nextTick(() => {
-        this.expendRow.push(row.index);
-      });
-      if (type == "edit" && this.restaurant_id != row.restaurant_id) {
-        this.getMenu();
-      }
+      // this.selectMenu = { label: category.name, value: row.category_id };
+      // this.tableData.splice(row.index, 1, { ...this.selectTable });
+      // this.$nextTick(() => {
+      //   this.expendRow.push(row.index);
+      // });
+      // if (type == "edit" && this.restaurant_id != row.restaurant_id) {
+      //   this.getMenu();
+      // }
     },
     handleSelect(index) {
-      this.selectIndex = index;
-      this.selectMenu = this.menuOptions[index];
+      // this.selectIndex = index;
+      // this.selectMenu = this.menuOptions[index];
     },
     async handleDelete(index, row) {
       try {
@@ -611,55 +659,60 @@ export default {
       }
       return isRightType && isLt2M;
     },
-    async addProduct() {
-      let addProductData = await JSON.parse(JSON.stringify(this.addProductForm));
-      addProductData.tag = addProductData.tag.split('/');
-
-      console.log(addProductData);
-
-      this.$ajax.post('/product/',addProductData)
-      .then(response=>{
-        if (response.data.success) {
-            this.$notify({
-                title: '成功',
-                message: response.data.message,
-                offset:100,
-                type: 'success'
-              });
+    addProduct(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          let addProductData = JSON.parse(JSON.stringify(this.addProductForm));
+          addProductData.tag = addProductData.tag.split("/");
+          this.$ajax
+            .post("/product/", addProductData)
+            .then(response => {
+              if (response.data.success) {
+                this.$refs.upload.submit();
+                // this.$notify({
+                //   title: "成功",
+                //   message: response.data.message,
+                //   offset: 100,
+                //   type: "success"
+                // });
+              } else {
+                this.$notify.error({
+                  title: "失败",
+                  message: response.data.message,
+                  offset: 100
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
         }else{
-          this.$notify.error({
-            title: '失败',
-            message: response.data.message,
-            offset:100
-          });
+          console.log("err submit");
         }
-      })
-      .catch(err=>{
-        console.log(err);
-      })
+      });
     },
     submitUpload() {
-        console.log(this);
-        this.$refs.upload.submit();
+      console.log(this);
+      this.$refs.upload.submit();
     },
     handleRemove(file, fileList) {
-    console.log(file, fileList);
+      console.log(file, fileList);
     },
     handlePreview(file) {
-    console.log(file);
+      console.log(file.response);
     },
-    handleExceed(files,fileList){
-        this.$notify.error({
-          title: '错误',
-          message: '每个商品只能最多上传'+fileList.length+'张图片',
-          offset:100
-        });
+    handleExceed(files, fileList) {
+      this.$notify.error({
+        title: "错误",
+        message: "每个商品只能最多上传" + fileList.length + "张图片",
+        offset: 100
+      });
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
-    propertyFormClose(){
-      this.resetForm('propertyForm');
+    propertyFormClose() {
+      this.resetForm("propertyForm");
     }
   }
 };
