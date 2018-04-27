@@ -1,14 +1,12 @@
 <template>
     <main>
-        <el-row :gutter="20">
+        <el-row>
             <el-col :span="8" :offset="14">
-                <el-input placeholder="请输入要查找的商品" v-model="searchFilter" class="input-with-select">
-                    <el-select v-model="selectFilter" slot="prepend" placeholder="请选择">
-                    <el-option label="商品类型" value="1"></el-option>
-                    <el-option label="商品品牌" value="2"></el-option>
-                    <el-option label="商品名称" value="3"></el-option>
+                <el-input placeholder="请输入要搜索的内容" v-model="searchFilter" class="input-with-select">
+                    <el-select v-model="selectFilter" slot="prepend" placeholder="搜索条件">
+                      <el-option v-for="item in selectOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
-                    <el-button slot="append" icon="el-icon-search"></el-button>
+                    <el-button slot="append" icon="el-icon-search" @click="searchProduct()"></el-button>
                 </el-input>
             </el-col>
             <el-col :span="2">
@@ -20,7 +18,7 @@
                 :data="tableData"
                 type='expand'
                 :expand-row-keys='expendRow'
-                :row-key="row => row.id"
+                :row-key="row => row.name"
                 style="width: 100%">
                 <el-table-column type="expand">
                   <template slot-scope="props">
@@ -35,22 +33,22 @@
                         <span>{{ props.row.name }}</span>
                       </el-form-item>
                       <el-form-item label="商品特性">
-                        <span>{{ props.row.tag }}</span>
+                        <span>{{ props.row.tag | prettyTag }}</span>
                       </el-form-item>
                       <el-form-item label="商品尺寸">
-                        <span>{{ props.row.size }}</span>
+                        <span>{{ props.row.size }}mm</span>
                       </el-form-item>
                       <el-form-item label="包装尺寸">
-                        <span>{{ props.row.packageSize }}</span>
+                        <span>{{ props.row.packageSize }}mm</span>
                       </el-form-item>
                       <el-form-item label="商品功率">
-                        <span>{{ props.row.power }}</span>
+                        <span>{{ props.row.power }}W</span>
                       </el-form-item>
                       <el-form-item label="商品重量">
-                        <span>{{ props.row.weight }}</span>
+                        <span>{{ props.row.weight }}kg</span>
                       </el-form-item>
                       <el-form-item label="商品价格">
-                        <span>{{ props.row.price }}</span>
+                        <span>￥{{ props.row.price }}</span>
                       </el-form-item>
                       <el-form-item label="商品销量">
                         <span>{{ props.row.sales }}</span>
@@ -85,12 +83,13 @@
 
             <div class="Pagination">
                 <el-pagination
+                  background
                   @size-change="handleSizeChange"
                   @current-change="handleCurrentChange"
                   :current-page="currentPage"
-                  :page-size="20"
+                  :page-size="limit"
                   layout="total, prev, pager, next"
-                  :total="count">
+                  :total="total">
                 </el-pagination>
             </div>
 
@@ -147,23 +146,23 @@
                           :headers="uploadForm.auth"
                           :show-file-list="false"
                           :on-success="handleServiceAvatarScucess"
-                          :before-upload="beforeAvatarUpload">
+                          :before-upload="beforeImgUpload">
                           <img v-if="addProductForm.imgUrl" :src="addProductForm.imgUrl" class="avatar">
                           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         </el-upload> -->
                         <el-upload
                             name="productImg"
+                            accept="image/*"
                             :data="addProductForm"
                             :limit=4
-                            multiple
                             list-type="picture-card"
                             :on-exceed="handleExceed"
+                            :on-change="imgChange"
                             ref="upload"
                             :action="uploadForm.url"
                             :headers="uploadForm.auth"
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
-                            :before-upload="beforeAvatarUpload"
                             :file-list="fileList"
                             :auto-upload="false">
                             <i slot="trigger" class="el-icon-plus"></i>
@@ -246,7 +245,7 @@
                           :action="baseUrl + '/v1/addimg/food'"
                           :show-file-list="false"
                           :on-success="handleServiceAvatarScucess"
-                          :before-upload="beforeAvatarUpload">
+                          :before-upload="beforeImgUpload">
                           <img v-if="selectTable.imgUrl" :src="baseImgPath + selectTable.imgUrl" class="avatar">
                           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         </el-upload>
@@ -326,25 +325,40 @@ export default {
         category: [
           { required: true, message: "请选择商品的类型", trigger: "blur" }
         ],
-        name: [{ required: true, message: "请输入商品的名称", trigger: "blur" }],
+        name: [
+          { required: true, message: "请输入商品的名称", trigger: "blur" }
+        ],
         tag: [
-          {pattern:/^[^/].+(\/.+)?[^/]$/, message:"请输入正确的商品标签，若有多个标签请用 ' / ' 隔开",trigger:"blur"}
+          {
+            pattern: /^[^/].+(\/.+)?[^/]$/,
+            message: "请输入正确的商品标签，若有多个标签请用 ' / ' 隔开",
+            trigger: "blur"
+          }
         ],
         size: [
           { required: true, message: "请输入商品的尺寸", trigger: "blur" },
-          { pattern:/^\d+x\d+x\d+$/, message: "请输入正确的商品尺寸", trigger: "blur" }
+          {
+            pattern: /^\d+x\d+x\d+$/,
+            message: "请输入正确的商品尺寸",
+            trigger: "blur"
+          }
         ],
         packageSize: [
           { required: true, message: "请输入商品的包装尺寸", trigger: "blur" },
-          { pattern:/^\d+x\d+x\d+$/, message: "请输入正确的包装尺寸", trigger: "blur" }
+          {
+            pattern: /^\d+x\d+x\d+$/,
+            message: "请输入正确的包装尺寸",
+            trigger: "blur"
+          }
         ],
         power: [
           {
             required: true,
             message: "请输入商品的功率",
             trigger: "blur"
-          },{
-            type:"number",
+          },
+          {
+            type: "number",
             message: "商品的功率需为数字",
             trigger: "blur"
           }
@@ -356,7 +370,7 @@ export default {
             trigger: "blur"
           },
           {
-            type:"number",
+            type: "number",
             message: "商品的重量需为数字",
             trigger: "blur"
           }
@@ -368,7 +382,7 @@ export default {
             trigger: "blur"
           },
           {
-            type:"number",
+            type: "number",
             message: "商品的价格需为数字",
             trigger: "blur"
           }
@@ -387,18 +401,14 @@ export default {
           name: "food.jpeg",
           url:
             "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
-        },
-        {
-          name: "food2.jpeg",
-          url:
-            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
         }
       ],
 
       offset: 0,
-      limit: 20,
-      count: 0,
+      limit: 10,
+      total: 100,
       currentPage: 1,
+
       dialogFormVisible: false,
       menuOptions: [],
       selectMenu: {},
@@ -416,86 +426,83 @@ export default {
       },
       propertyFormVisible: false,
       editPropertyIndex: 0,
-      expendRow: []
+      expendRow: [],
+      orderList:[],
+      selectOptions:[
+        {value:'grand',label:'商品品牌'},
+        {value:'category',label:'商品类型'},
+        {value:'name',label:'商品名称'},
+        {value:'tag',label:'商品标签'},
+        {value:'property',label:'商品属性'}
+      ]
     };
   },
   created() {
-    // this.initData();
+    this.loadProductData();
   },
   computed: {
-    // specs: function() {
-    //   let specs = [];
-    //   if (this.selectTable.specfoods) {
-    //     this.selectTable.specfoods.forEach(item => {
-    //       specs.push({
-    //         specs: item.specs_name,
-    //         packing_fee: item.packing_fee,
-    //         price: item.price
-    //       });
-    //     });
-    //   }
-    //   return specs;
-    // },
     tableData: function() {
-      return this.$store.state.orderList;
+      return this.orderList;
     }
   },
   methods: {
-    async initData() {
-      try {
-        const countData = await getFoodsCount({
-          restaurant_id: this.restaurant_id
-        });
-        if (countData.status == 1) {
-          this.count = countData.count;
-        } else {
-          throw new Error("获取数据失败");
-        }
-        this.getFoods();
-      } catch (err) {
-        console.log("获取数据失败", err);
-      }
-    },
-    async getMenu() {
-      this.menuOptions = [];
-      try {
-        const menu = await getMenu({
-          restaurant_id: this.selectTable.restaurant_id,
-          allMenu: true
-        });
-        menu.forEach((item, index) => {
-          this.menuOptions.push({
-            label: item.name,
-            value: item.id,
-            index
-          });
-        });
-      } catch (err) {
-        console.log("获取食品种类失败", err);
-      }
-    },
-    async getFoods() {
-      const Foods = await getFoods({
-        offset: this.offset,
+    loadProductData() {
+      let params={
         limit: this.limit,
-        restaurant_id: this.restaurant_id
-      });
-      this.tableData = [];
-      Foods.forEach((item, index) => {
-        const tableData = {};
-        tableData.name = item.name;
-        tableData.item_id = item.item_id;
-        tableData.description = item.description;
-        tableData.rating = item.rating;
-        tableData.month_sales = item.month_sales;
-        tableData.restaurant_id = item.restaurant_id;
-        tableData.category_id = item.category_id;
-        tableData.image_path = item.image_path;
-        tableData.specfoods = item.specfoods;
-        tableData.index = index;
-        this.tableData.push(tableData);
-      });
+        currentPage: this.currentPage,
+      }
+      this.$ajax.get('/product',{params:params})
+      .then(response=>{
+        console.log(response.data);
+        if (response.data.success) {       
+          this.orderList = response.data.product;
+          this.total = response.data.total;
+        }
+      })
+      .then(err=>{
+        console.log(err);
+      })
     },
+    // async getMenu() {
+    //   this.menuOptions = [];
+    //   try {
+    //     const menu = await getMenu({
+    //       restaurant_id: this.selectTable.restaurant_id,
+    //       allMenu: true
+    //     });
+    //     menu.forEach((item, index) => {
+    //       this.menuOptions.push({
+    //         label: item.name,
+    //         value: item.id,
+    //         index
+    //       });
+    //     });
+    //   } catch (err) {
+    //     console.log("获取食品种类失败", err);
+    //   }
+    // },
+    // async getFoods() {
+    //   const Foods = await getFoods({
+    //     offset: this.offset,
+    //     limit: this.limit,
+    //     restaurant_id: this.restaurant_id
+    //   });
+    //   this.tableData = [];
+    //   Foods.forEach((item, index) => {
+    //     const tableData = {};
+    //     tableData.name = item.name;
+    //     tableData.item_id = item.item_id;
+    //     tableData.description = item.description;
+    //     tableData.rating = item.rating;
+    //     tableData.month_sales = item.month_sales;
+    //     tableData.restaurant_id = item.restaurant_id;
+    //     tableData.category_id = item.category_id;
+    //     tableData.image_path = item.image_path;
+    //     tableData.specfoods = item.specfoods;
+    //     tableData.index = index;
+    //     this.tableData.push(tableData);
+    //   });
+    // },
     tableRowClassName(row, index) {
       if (index === 1) {
         return "info-row";
@@ -575,12 +582,11 @@ export default {
       this.addProductForm.property.splice(index, 1);
     },
     handleSizeChange(val) {
-      // console.log(`每页 ${val} 条`);
+      console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) {
-      // this.currentPage = val;
-      // this.offset = (val - 1) * this.limit;
-      // this.getFoods();
+      this.currentPage = val;
+      this.loadProductData();
     },
     expand(row, status) {
       // if (status) {
@@ -605,7 +611,6 @@ export default {
       //     category_name: category.name
       //   }
       // };
-
       // this.selectMenu = { label: category.name, value: row.category_id };
       // this.tableData.splice(row.index, 1, { ...this.selectTable });
       // this.$nextTick(() => {
@@ -646,18 +651,25 @@ export default {
         this.$message.error("上传图片失败！");
       }
     },
-    beforeAvatarUpload(file) {
-      const isRightType =
-        file.type === "image/jpeg" || file.type === "image/png";
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isRightType) {
-        this.$message.error("上传头像图片只能是 JPG 或 PNG 格式!");
+    imgChange(file,fileList){
+      let isImgReg = /(.jpg|.png)$/;
+      const isLt4M = file.size / 1024 / 1024 < 4;
+      if (!isImgReg.test(file.name)) {
+        this.$notify.error({
+          title: "错误",
+          message: "商品图片后缀只能是 .jpg 或 .png 格式",
+          offset: 100
+        });
+        fileList.pop();
       }
-      if (!isLt2M) {
-        this.$message.error("上传头像图片大小不能超过 2MB!");
+      else if (!isLt4M) {
+        this.$notify.error({
+          title: "错误",
+          message: "商品图片大小不能超过 4MB",
+          offset: 100
+        });
+        fileList.pop();
       }
-      return isRightType && isLt2M;
     },
     addProduct(formName) {
       this.$refs[formName].validate(valid => {
@@ -669,12 +681,13 @@ export default {
             .then(response => {
               if (response.data.success) {
                 this.$refs.upload.submit();
-                // this.$notify({
-                //   title: "成功",
-                //   message: response.data.message,
-                //   offset: 100,
-                //   type: "success"
-                // });
+                this.addProductFormVisible = false;
+                this.$notify({
+                  title: "成功",
+                  message: response.data.message,
+                  offset: 100,
+                  type: "success"
+                });
               } else {
                 this.$notify.error({
                   title: "失败",
@@ -686,7 +699,7 @@ export default {
             .catch(err => {
               console.log(err);
             });
-        }else{
+        } else {
           console.log("err submit");
         }
       });
@@ -699,12 +712,12 @@ export default {
       console.log(file, fileList);
     },
     handlePreview(file) {
-      console.log(file.response);
+      console.log(file);
     },
     handleExceed(files, fileList) {
       this.$notify.error({
         title: "错误",
-        message: "每个商品只能最多上传" + fileList.length + "张图片",
+        message: "每个商品只能最多上传4张图片",
         offset: 100
       });
     },
@@ -714,13 +727,18 @@ export default {
     propertyFormClose() {
       this.resetForm("propertyForm");
     }
+  },
+  filters:{
+    prettyTag:(value) => {
+      return value.join(' / ');
+    }
   }
 };
 </script>
 
 <style scoped>
 .el-row {
-  margin: 10px;
+  margin: 10px 0px 10px 0px;
 }
 .demo-table-expand {
   font-size: 0;
@@ -749,14 +767,10 @@ export default {
   background-color: #fff;
 }
 .table_container {
-  padding: 20px;
+  padding:20px;
 }
 .Pagination {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 8px;
-}
-.avatar-uploader {
+  margin-top: 40px;
 }
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
