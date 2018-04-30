@@ -6,7 +6,7 @@
                     <el-select v-model="selectFilter" slot="prepend" placeholder="搜索条件">
                       <el-option v-for="item in selectOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                     </el-select>
-                    <el-button slot="append" icon="el-icon-search" @click="searchProduct()"></el-button>
+                    <el-button slot="append" icon="el-icon-search" @click="loadProductData()"></el-button>
                 </el-input>
             </el-col>
             <el-col :span="2">
@@ -163,7 +163,7 @@
                             :headers="uploadForm.auth"
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
-                            :file-list="fileList"
+                            :file-list="addFileList"
                             :auto-upload="false">
                             <i slot="trigger" class="el-icon-plus"></i>
                             <div slot="tip" class="el-upload__tip">请将图片命名为 [数字.png] 的形式，1.png的将作为主图</div>
@@ -396,13 +396,7 @@ export default {
         url: "http://127.0.0.1:4040/admin/product/img/"
       },
 
-      fileList: [
-        {
-          name: "food.jpeg",
-          url:
-            "https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100"
-        }
-      ],
+      addFileList: [],
 
       offset: 0,
       limit: 10,
@@ -429,6 +423,7 @@ export default {
       expendRow: [],
       orderList:[],
       selectOptions:[
+        {value:'',label:'搜索条件'},
         {value:'grand',label:'商品品牌'},
         {value:'category',label:'商品类型'},
         {value:'name',label:'商品名称'},
@@ -450,6 +445,8 @@ export default {
       let params={
         limit: this.limit,
         currentPage: this.currentPage,
+        searchFilter:this.searchFilter,
+        selectFilter:this.selectFilter
       }
       this.$ajax.get('/product',{params:params})
       .then(response=>{
@@ -459,7 +456,7 @@ export default {
           this.total = response.data.total;
         }
       })
-      .then(err=>{
+      .catch(err=>{
         console.log(err);
       })
     },
@@ -503,6 +500,7 @@ export default {
     //     this.tableData.push(tableData);
     //   });
     // },
+
     tableRowClassName(row, index) {
       if (index === 1) {
         return "info-row";
@@ -511,6 +509,7 @@ export default {
       }
       return "";
     },
+
     submitProperty(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
