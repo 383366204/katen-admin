@@ -93,8 +93,9 @@
                 </el-pagination>
             </div>
 
+            <!-- 添加商品模态窗 -->
             <el-dialog class="addDialog" title="添加商品" :visible.sync="addProductFormVisible" width="60%">
-                <el-form :rules="addProductFormRules" :model="addProductForm" ref="addProductForm">
+                <el-form :rules="productFormRules" :model="addProductForm" ref="addProductForm">
                     <el-form-item label="商品品牌" label-width="100px" prop="grand">
                         <el-input v-model="addProductForm.grand" auto-complete="off" placeholder="请填写商品的品牌"></el-input>
                     </el-form-item>
@@ -140,16 +141,6 @@
                         <el-input v-model="addProductForm.tag" placeholder="请填写商品的标签，多个标签之间用'/'隔开"></el-input>
                     </el-form-item>
                     <el-form-item label="商品图片" label-width="100px">
-                        <!-- <el-upload
-                          class="avatar-uploader"
-                          :action="uploadForm.url"
-                          :headers="uploadForm.auth"
-                          :show-file-list="false"
-                          :on-success="handleServiceAvatarScucess"
-                          :before-upload="beforeImgUpload">
-                          <img v-if="addProductForm.imgUrl" :src="addProductForm.imgUrl" class="avatar">
-                          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                        </el-upload> -->
                         <el-upload
                             name="productImg"
                             accept="image/*"
@@ -203,83 +194,108 @@
                   <el-button type="primary" @click="addProduct('addProductForm')">确 定</el-button>
                 </div>
             </el-dialog>
-            <!-- <el-dialog title="修改商品信息" v-model="dialogFormVisible">
-                <el-form :model="selectTable">
-                    <el-form-item label="商品品牌" label-width="100px">
-                        <el-input v-model="selectTable.grand" auto-complete="off"></el-input>
+
+            <!-- 编辑商品模态窗 -->
+            <el-dialog class="addDialog" title="编辑商品" :visible.sync="editProductFormVisible" width="60%">
+                <el-form :rules="productFormRules" :model="editProductForm" ref="editProductForm">
+                    <el-form-item label="商品品牌" label-width="100px" prop="grand">
+                        <el-input v-model="editProductForm.grand" auto-complete="off" placeholder="请填写商品的品牌"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品分类" label-width="100px">
-	                    <el-select v-model="selectTable.category" :placeholder="selectMenu.label" @change="handleSelect">
-						    <el-option
-						      v-for="item in menuOptions"
-						      :key="item.value"
-						      :label="item.label"
-						      :value="item.index">
-						    </el-option>
-						</el-select>
+                    <el-form-item label="商品分类" label-width="100px" prop="category">
+	                    <el-select v-model="editProductForm.category" @change="handleSelect"  placeholder="请选择商品的分类">
+                          <el-option
+                            v-for="(item,index) in category"
+                            :key="index"
+                            :label="item"
+                            :value="item">
+                          </el-option>
+                      </el-select>
                     </el-form-item>
-                    <el-form-item label="商品名称" label-width="100px">
-                        <el-input v-model="selectTable.name" auto-complete="off"></el-input>
+                    <el-form-item label="商品名称" label-width="100px" prop="name">
+                        <el-input v-model="editProductForm.name" auto-complete="off"  placeholder="请填写商品的名称"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品标签" label-width="100px">
-                        <el-input v-model="selectTable.tag"></el-input>
-                    </el-form-item>       
-                    <el-form-item label="商品尺寸" label-width="100px">
-                        <el-input v-model="selectTable.size"></el-input>
+                    <el-form-item label="商品价格" label-width="100px" prop="price">
+                        <el-input v-model.number="editProductForm.price"  placeholder="请填写商品的价格">
+                          <template slot="append">￥</template>
+                        </el-input>
                     </el-form-item>
-                    <el-form-item label="包装尺寸" label-width="100px">
-                        <el-input v-model="selectTable.packageSize"></el-input>
+                    <el-form-item label="商品尺寸" label-width="100px" prop="size">
+                        <el-input v-model="editProductForm.size" placeholder="商品尺寸,格式如895x647x517">
+                          <template slot="append">mm</template>
+                        </el-input>
                     </el-form-item>
-                    <el-form-item label="商品功率" label-width="100px">
-                        <el-input v-model="selectTable.power"></el-input>
+                    <el-form-item label="包装尺寸" label-width="100px" prop="packageSize">
+                        <el-input v-model="editProductForm.packageSize"  placeholder="包装尺寸,格式如965x700x577">
+                          <template slot="append">mm</template>
+                        </el-input>
                     </el-form-item>
-                    <el-form-item label="商品重量" label-width="100px">
-                        <el-input v-model="selectTable.weight"></el-input>
+                    <el-form-item label="商品功率" label-width="100px" prop="power">
+                        <el-input v-model.number="editProductForm.power" placeholder="请填写商品的功率">
+                           <template slot="append">W</template>
+                        </el-input>
                     </el-form-item>
-                    <el-form-item label="商品价格" label-width="100px">
-                        <el-input v-model="selectTable.price"></el-input>
+                    <el-form-item label="商品重量" label-width="100px" prop="weight">
+                        <el-input v-model.number="editProductForm.weight" placeholder="请填写商品的重量">
+                          <template slot="append">kg</template>
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item label="商品标签" label-width="100px" prop="tag">
+                        <el-input v-model="editProductForm.tag" placeholder="请填写商品的标签，多个标签之间用'/'隔开"></el-input>
                     </el-form-item>
                     <el-form-item label="商品图片" label-width="100px">
                         <el-upload
-                          class="avatar-uploader"
-                          :action="baseUrl + '/v1/addimg/food'"
-                          :show-file-list="false"
-                          :on-success="handleServiceAvatarScucess"
-                          :before-upload="beforeImgUpload">
-                          <img v-if="selectTable.imgUrl" :src="baseImgPath + selectTable.imgUrl" class="avatar">
-                          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                            name="productImg"
+                            accept="image/*"
+                            :data="editProductForm"
+                            :limit=4
+                            list-type="picture-card"
+                            :on-exceed="handleExceed"
+                            :on-change="imgChange"
+                            ref="upload"
+                            :action="uploadForm.url"
+                            :headers="uploadForm.auth"
+                            :on-preview="handlePreview"
+                            :on-remove="handleRemove"
+                            :file-list="addFileList"
+                            :auto-upload="false">
+                            <i slot="trigger" class="el-icon-plus"></i>
+                            <div slot="tip" class="el-upload__tip">请将图片命名为 [数字.png] 的形式，1.png的将作为主图</div>
                         </el-upload>
                     </el-form-item>
                 </el-form>
-                <el-row style="overflow: auto; text-align: center;">
+                <el-row>
 	                <el-table
-				    :data="specs"
-				    style="margin-bottom: 20px;"
-				    :row-class-name="tableRowClassName">
-					    <el-table-column
-					      prop="proName"
-					      label="属性名">
-					    </el-table-column>
-					    <el-table-column
-					      prop="proValue"
-					      label="属性值">
-					    </el-table-column>
-					    <el-table-column label="操作" >
-					    <template slot-scope="scope"> 
-					        <el-button
-					          size="small"
-					          type="danger"
-					          @click="deleteProperty(scope.$index)">删除</el-button>
-					    </template>
-					    </el-table-column>
-					</el-table>
-					<el-button type="primary" @click="specsFormVisible = true" style="margin-bottom: 10px;">添加规格</el-button>
-				</el-row>
-              <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="addProduct">确 定</el-button>
-              </div>
-            </el-dialog> -->
+                    :data="editProductForm.property"
+                    style="margin-bottom: 20px;">
+                      <el-table-column
+                        prop="proName"
+                        label="属性名">
+                      </el-table-column>
+                      <el-table-column
+                        prop="proValue"
+                        label="属性值">
+                      </el-table-column>
+                      <el-table-column label="操作" >
+                      <template slot-scope="scope">
+                        <el-button
+                          size="small"
+                          @click="editProperty(scope.$index)">编辑
+                        </el-button>
+                        <el-button
+                          size="small"
+                          type="danger"
+                          @click="deleteProperty(scope.$index)">删除
+                        </el-button>  
+                      </template>
+                      </el-table-column>
+                  </el-table>
+					        <el-button type="primary" @click="addProperty()" style="margin-bottom: 10px;">添加属性</el-button>
+				        </el-row>
+                <div slot="footer" class="dialog-footer">
+                  <el-button @click="editProductFormVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="editProduct('editProductForm')">确 定</el-button>
+                </div>
+            </el-dialog>
 
             <!-- 属性模态窗 -->
             <el-dialog :title="propertyType[propertyTypeIndex]" :visible.sync="propertyFormVisible" width="30%" @close="propertyFormClose()">
@@ -320,7 +336,20 @@ export default {
         price: 3600,
         property: []
       },
-      addProductFormRules: {
+      editProductFormVisible: false,
+      editProductForm: {
+        grand: "",
+        category: "",
+        name: "",
+        tag: "",
+        size: "",
+        packageSize: "",
+        power: 0,
+        weight: 0,
+        price: 0,
+        property: []
+      },
+      productFormRules: {
         grand: [{ required: true, message: "请输入商品品牌", trigger: "blur" }],
         category: [
           { required: true, message: "请选择商品的类型", trigger: "blur" }
@@ -388,6 +417,9 @@ export default {
           }
         ]
       },
+      
+
+
       category: ["抽油烟机", "燃气灶", "消毒碗柜", "热水器"],
       searchFilter: "",
       selectFilter: "",
@@ -442,6 +474,7 @@ export default {
   },
   methods: {
     loadProductData() {
+      this.expendRow = [];
       let params={
         limit: this.limit,
         currentPage: this.currentPage,
@@ -596,8 +629,20 @@ export default {
       // }
     },
     handleEdit(row) {
-      this.getSelectItemData(row, "edit");
-      this.dialogFormVisible = true;
+      // 显示模态框
+      this.editProductFormVisible = true;
+      // 赋值
+      this.editProductForm.grand = row.grand;
+      this.editProductForm.category = row.category;
+      this.editProductForm.name = row.name;
+      this.editProductForm.tag = row.tag.join('/');
+      this.editProductForm.size = row.size;
+      this.editProductForm.packageSize = row.packageSize;
+      this.editProductForm.power = row.power;
+      this.editProductForm.weight = row.weight;
+      this.editProductForm.price = row.price;
+      this.editProductForm.property = row.property;
+
     },
     async getSelectItemData(row, type) {
       // const restaurant = await getResturantDetail(row.restaurant_id);
@@ -623,25 +668,32 @@ export default {
       // this.selectIndex = index;
       // this.selectMenu = this.menuOptions[index];
     },
-    async handleDelete(index, row) {
-      try {
-        const res = await deleteFood(row.item_id);
-        if (res.status == 1) {
-          this.$message({
-            type: "success",
-            message: "删除食品成功"
-          });
-          this.tableData.splice(index, 1);
-        } else {
-          throw new Error(res.message);
-        }
-      } catch (err) {
-        this.$message({
-          type: "error",
-          message: err.message
-        });
-        console.log("删除食品失败");
-      }
+    handleDelete(index, row) {
+        this.$confirm('此操作将删除该商品, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          return this.$ajax.delete('/product',{
+            data:{
+              name:row.name
+            }
+          })
+        })
+        .then(response=>{
+          if (response.data.success) {
+            this.$notify({
+              title: "成功",
+              message: response.data.message,
+              offset: 100,
+              type: "success"
+            })
+            this.tableData.splice(index, 1);
+          }
+        })
+        .catch(err=>{
+          console.log(err);
+        })
     },
     handleServiceAvatarScucess(res, file) {
       if (res.status == 1) {
@@ -676,7 +728,7 @@ export default {
           let addProductData = JSON.parse(JSON.stringify(this.addProductForm));
           addProductData.tag = addProductData.tag.split("/");
           this.$ajax
-            .post("/product/", addProductData)
+            .post("/product", addProductData)
             .then(response => {
               if (response.data.success) {
                 this.$refs.upload.submit();
