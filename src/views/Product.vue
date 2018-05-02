@@ -196,7 +196,7 @@
             </el-dialog>
 
             <!-- 编辑商品模态窗 -->
-            <el-dialog class="addDialog" title="编辑商品" :visible.sync="editProductFormVisible" width="60%">
+            <el-dialog class="addDialog" title="编辑商品" :visible.sync="editProductFormVisible" width="60%" @close="resetForm('editProductForm')">
                 <el-form :rules="productFormRules" :model="editProductForm" ref="editProductForm">
                     <el-form-item label="商品品牌" label-width="100px" prop="grand">
                         <el-input v-model="editProductForm.grand" auto-complete="off" placeholder="请填写商品的品牌"></el-input>
@@ -256,7 +256,7 @@
                             :headers="uploadForm.auth"
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
-                            :file-list="addFileList"
+                            :file-list="editFileList"
                             :auto-upload="false">
                             <i slot="trigger" class="el-icon-plus"></i>
                             <div slot="tip" class="el-upload__tip">请将图片命名为 [数字.png] 的形式，1.png的将作为主图</div>
@@ -318,8 +318,6 @@
 
 <script>
 // import headTop from '../components/headTop'
-// import {baseUrl, baseImgPath} from '@/config/env'
-// import {getFoods, getFoodsCount, getMenu, addProduct, deleteFood, getResturantDetail, getMenuById} from '@/api/getData'
 export default {
   data() {
     return {
@@ -418,17 +416,16 @@ export default {
         ]
       },
       
-
-
       category: ["抽油烟机", "燃气灶", "消毒碗柜", "热水器"],
       searchFilter: "",
       selectFilter: "",
       uploadForm: {
         auth: { Authorization: this.$store.state.token },
-        url: "http://127.0.0.1:4040/admin/product/img/"
+        url: this.$store.state.baseUrl+"admin/product/img/"
       },
 
       addFileList: [],
+      editFileList:[],
 
       offset: 0,
       limit: 10,
@@ -493,46 +490,6 @@ export default {
         console.log(err);
       })
     },
-    // async getMenu() {
-    //   this.menuOptions = [];
-    //   try {
-    //     const menu = await getMenu({
-    //       restaurant_id: this.selectTable.restaurant_id,
-    //       allMenu: true
-    //     });
-    //     menu.forEach((item, index) => {
-    //       this.menuOptions.push({
-    //         label: item.name,
-    //         value: item.id,
-    //         index
-    //       });
-    //     });
-    //   } catch (err) {
-    //     console.log("获取食品种类失败", err);
-    //   }
-    // },
-    // async getFoods() {
-    //   const Foods = await getFoods({
-    //     offset: this.offset,
-    //     limit: this.limit,
-    //     restaurant_id: this.restaurant_id
-    //   });
-    //   this.tableData = [];
-    //   Foods.forEach((item, index) => {
-    //     const tableData = {};
-    //     tableData.name = item.name;
-    //     tableData.item_id = item.item_id;
-    //     tableData.description = item.description;
-    //     tableData.rating = item.rating;
-    //     tableData.month_sales = item.month_sales;
-    //     tableData.restaurant_id = item.restaurant_id;
-    //     tableData.category_id = item.category_id;
-    //     tableData.image_path = item.image_path;
-    //     tableData.specfoods = item.specfoods;
-    //     tableData.index = index;
-    //     this.tableData.push(tableData);
-    //   });
-    // },
 
     tableRowClassName(row, index) {
       if (index === 1) {
@@ -643,6 +600,21 @@ export default {
       this.editProductForm.price = row.price;
       this.editProductForm.property = row.property;
 
+      this.$ajax.get('/product/img',{params:{name:this.editProductForm.name}})
+      .then(response=>{
+        if (response.data.success) {
+          console.log(response.data.fileList);
+          response.data.fileList.forEach((value,index) => {
+            this.editFileList.push({
+              name:value,
+              url:this.$store.state.baseUrl+'productPic/'+this.editProductForm.name+'/'+value
+            })
+          })
+        }
+      })
+      .catch(err=>{
+        console.log(err);
+      })
     },
     async getSelectItemData(row, type) {
       // const restaurant = await getResturantDetail(row.restaurant_id);
@@ -774,6 +746,8 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
+      this.addFileList=[];
+      this.editFileList=[];
     },
     propertyFormClose() {
       this.resetForm("propertyForm");

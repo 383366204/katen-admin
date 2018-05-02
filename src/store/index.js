@@ -9,7 +9,8 @@ const state = {
     id:'',
     level:'',
   },
-  adminList:[]
+  adminList:[],
+  baseUrl:'http://127.0.0.1:4040/'
 }
 
 const getters = {
