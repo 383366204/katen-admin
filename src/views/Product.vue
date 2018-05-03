@@ -153,11 +153,10 @@
                             :action="uploadForm.url"
                             :headers="uploadForm.auth"
                             :on-preview="handlePreview"
-                            :on-remove="handleRemove"
                             :file-list="addFileList"
                             :auto-upload="false">
                             <i slot="trigger" class="el-icon-plus"></i>
-                            <div slot="tip" class="el-upload__tip">请将图片命名为 [数字.png] 的形式，1.png的将作为主图</div>
+                            <div slot="tip" class="el-upload__tip">第一张将作为主图</div>
                         </el-upload>
                     </el-form-item>
                 </el-form>
@@ -256,10 +255,9 @@
                             :headers="uploadForm.auth"
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
-                            :file-list="editFileList"
-                            :auto-upload="false">
+                            :file-list="editFileList">
                             <i slot="trigger" class="el-icon-plus"></i>
-                            <div slot="tip" class="el-upload__tip">请将图片命名为 [数字.png] 的形式，1.png的将作为主图</div>
+                            <div slot="tip" class="el-upload__tip">第一张将作为主图</div>
                         </el-upload>
                     </el-form-item>
                 </el-form>
@@ -336,6 +334,7 @@ export default {
       },
       editProductFormVisible: false,
       editProductForm: {
+        oldName:"",
         grand: "",
         category: "",
         name: "",
@@ -347,6 +346,7 @@ export default {
         price: 0,
         property: []
       },
+      editProductName:'',
       productFormRules: {
         grand: [{ required: true, message: "请输入商品品牌", trigger: "blur" }],
         category: [
@@ -450,7 +450,7 @@ export default {
       propertyFormVisible: false,
       editPropertyIndex: 0,
       expendRow: [],
-      orderList:[],
+      productList:[],
       selectOptions:[
         {value:'',label:'搜索条件'},
         {value:'grand',label:'商品品牌'},
@@ -466,7 +466,7 @@ export default {
   },
   computed: {
     tableData: function() {
-      return this.orderList;
+      return this.productList;
     }
   },
   methods: {
@@ -482,7 +482,7 @@ export default {
       .then(response=>{
         console.log(response.data);
         if (response.data.success) {       
-          this.orderList = response.data.product;
+          this.productList = response.data.product;
           this.total = response.data.total;
         }
       })
@@ -503,19 +503,20 @@ export default {
     submitProperty(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
+          // 判断是新增还是修改
+          let form = this.addProductFormVisible?this.addProductForm:this.editProductForm;
           // 若是添加属性
           if (this.propertyTypeIndex == 0) {
             // 判断是否有重复的属性名
             if (
-              this.addProductForm.property.every(ele => {
+              form.property.every(ele => {
                 return ele.proName != this.propertyForm.proName;
               })
             ) {
               // 将属性push
-              this.addProductForm.property.push(
+              form.property.push(
                 JSON.parse(JSON.stringify(this.propertyForm))
               );
-
               this.propertyFormVisible = false;
             } else {
               this.$notify.error({
@@ -527,7 +528,7 @@ export default {
           } else if (this.propertyTypeIndex == 1) {
             // 若是修改属性
             var notRepeat = true;
-            this.addProductForm.property.forEach((value, i) => {
+            form.property.forEach((value, i) => {
               if (
                 i != this.editPropertyIndex &&
                 value.proName == this.propertyForm.proName
@@ -536,10 +537,10 @@ export default {
               }
             });
             if (notRepeat) {
-              this.addProductForm.property[
+              form.property[
                 this.editPropertyIndex
               ].proName = this.propertyForm.proName;
-              this.addProductForm.property[
+              form.property[
                 this.editPropertyIndex
               ].proValue = this.propertyForm.proValue;
               this.propertyFormVisible = false;
@@ -564,11 +565,17 @@ export default {
       this.propertyTypeIndex = 1;
       this.editPropertyIndex = index;
       this.propertyFormVisible = true;
-      this.propertyForm.proName = this.addProductForm.property[index].proName;
-      this.propertyForm.proValue = this.addProductForm.property[index].proValue;
+
+      // 判断是新增还是修改
+      let form = this.addProductFormVisible?this.addProductForm:this.editProductForm;
+
+      this.propertyForm.proName = form.property[index].proName;
+      this.propertyForm.proValue = form.property[index].proValue;
     },
     deleteProperty(index) {
-      this.addProductForm.property.splice(index, 1);
+      // 判断是新增还是修改
+      let form = this.addProductFormVisible?this.addProductForm:this.editProductForm;
+      form.property.splice(index, 1);
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
@@ -588,7 +595,9 @@ export default {
     handleEdit(row) {
       // 显示模态框
       this.editProductFormVisible = true;
+
       // 赋值
+      this.editProductForm.oldName = row.name;
       this.editProductForm.grand = row.grand;
       this.editProductForm.category = row.category;
       this.editProductForm.name = row.name;
@@ -615,26 +624,6 @@ export default {
       .catch(err=>{
         console.log(err);
       })
-    },
-    async getSelectItemData(row, type) {
-      // const restaurant = await getResturantDetail(row.restaurant_id);
-      // const category = await getMenuById(row.category_id);
-      // this.selectTable = {
-      //   ...row,
-      //   ...{
-      //     restaurant_name: restaurant.name,
-      //     restaurant_address: restaurant.address,
-      //     category_name: category.name
-      //   }
-      // };
-      // this.selectMenu = { label: category.name, value: row.category_id };
-      // this.tableData.splice(row.index, 1, { ...this.selectTable });
-      // this.$nextTick(() => {
-      //   this.expendRow.push(row.index);
-      // });
-      // if (type == "edit" && this.restaurant_id != row.restaurant_id) {
-      //   this.getMenu();
-      // }
     },
     handleSelect(index) {
       // this.selectIndex = index;
@@ -727,12 +716,67 @@ export default {
         }
       });
     },
+    editProduct(formName){
+       this.$refs[formName].validate(valid => {
+        if (valid) {
+          let editProductData = JSON.parse(JSON.stringify(this.editProductForm));
+          editProductData.tag = editProductData.tag.split("/");
+          this.$ajax
+            .put("/product", editProductData)
+            .then(response => {
+              if (response.data.success) {
+                this.editProductFormVisible = false;
+
+                let updateIndex = this.productList.findIndex((product) => {
+                  return product.name == this.editProductForm.oldName;  
+                })
+                this.productList[updateIndex] = response.data.product;
+                this.$notify({
+                  title: "成功",
+                  message: response.data.message,
+                  offset: 100,
+                  type: "success"
+                });
+              } else {
+                this.$notify.error({
+                  title: "失败",
+                  message: response.data.message,
+                  offset: 100
+                });
+              }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+        } else {
+          console.log("err submit");
+        }
+      });
+    },
     submitUpload() {
       console.log(this);
       this.$refs.upload.submit();
     },
     handleRemove(file, fileList) {
-      console.log(file, fileList);
+      this.$ajax.delete('/product/img',{
+        data:{
+          name:this.editProductForm.name,
+          fileName:file.name
+        }
+      })
+      .then(response=>{
+        if (response.data.success) {
+          this.$notify({
+            title: "成功",
+            message: response.data.message,
+            offset: 100,
+            type: "success"
+          })
+        }
+      })
+      .catch(err=>{
+        console.log(err);
+      })
     },
     handlePreview(file) {
       console.log(file);
