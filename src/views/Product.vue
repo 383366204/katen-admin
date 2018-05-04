@@ -427,8 +427,7 @@ export default {
       addFileList: [],
       editFileList:[],
 
-      offset: 0,
-      limit: 10,
+      limit: 12,
       total: 100,
       currentPage: 1,
 
@@ -471,7 +470,6 @@ export default {
   },
   methods: {
     loadProductData() {
-      this.expendRow = [];
       let params={
         limit: this.limit,
         currentPage: this.currentPage,
@@ -480,7 +478,6 @@ export default {
       }
       this.$ajax.get('/product',{params:params})
       .then(response=>{
-        console.log(response.data);
         if (response.data.success) {       
           this.productList = response.data.product;
           this.total = response.data.total;
@@ -584,14 +581,6 @@ export default {
       this.currentPage = val;
       this.loadProductData();
     },
-    expand(row, status) {
-      // if (status) {
-      //   this.getSelectItemData(row);
-      // } else {
-      //   const index = this.expendRow.indexOf(row.index);
-      //   this.expendRow.splice(index, 1);
-      // }
-    },
     handleEdit(row) {
       // 显示模态框
       this.editProductFormVisible = true;
@@ -612,7 +601,6 @@ export default {
       this.$ajax.get('/product/img',{params:{name:this.editProductForm.name}})
       .then(response=>{
         if (response.data.success) {
-          console.log(response.data.fileList);
           response.data.fileList.forEach((value,index) => {
             this.editFileList.push({
               name:value,
@@ -681,6 +669,8 @@ export default {
           offset: 100
         });
         fileList.pop();
+      }else{
+        console.log(file,fileList);
       }
     },
     addProduct(formName) {
@@ -791,7 +781,9 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields();
       this.addFileList=[];
-      this.editFileList=[];
+      if (!this.editProductFormVisible) {
+        this.editFileList=[];
+      }
     },
     propertyFormClose() {
       this.resetForm("propertyForm");
@@ -839,7 +831,7 @@ export default {
   padding:20px;
 }
 .Pagination {
-  margin-top: 40px;
+  margin-top: 22px;
 }
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
