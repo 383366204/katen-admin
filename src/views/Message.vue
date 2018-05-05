@@ -130,8 +130,7 @@ export default {
               offset: 100,
               type: "success"
             })
-            this.messageList.splice(index, 1);
-            this.total--;
+            this.loadProductData();
           }
         })
         .catch(err=>{
