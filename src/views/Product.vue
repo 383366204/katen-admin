@@ -10,7 +10,7 @@
                 </el-input>
             </el-col>
             <el-col :span="2">
-                <el-button type="primary" class="addProductBtn" @click="addProductFormVisible=true">添加商品<i class="el-icon-plus el-icon--right"></i></el-button>
+                <el-button type="primary" class="addProductBtn" @click="addProductFormVisible=true;addFileList = []">添加商品<i class="el-icon-plus el-icon--right"></i></el-button>
             </el-col>
         </el-row>
         <div class="table_container">
@@ -250,7 +250,6 @@
                             list-type="picture-card"
                             :on-exceed="handleExceed"
                             :on-change="imgChange"
-                            ref="upload"
                             :action="uploadForm.url"
                             :headers="uploadForm.auth"
                             :on-preview="handlePreview"
@@ -431,11 +430,6 @@ export default {
       total: 100,
       currentPage: 1,
 
-      dialogFormVisible: false,
-      menuOptions: [],
-      selectMenu: {},
-      selectIndex: null,
-
       propertyTypeIndex: 0,
       propertyType: ["添加属性", "修改属性"],
       propertyForm: {
@@ -476,7 +470,7 @@ export default {
         searchFilter:this.searchFilter,
         selectFilter:this.selectFilter
       }
-      this.$ajax.get('/product',{params:params})
+      this.$ajax.get('admin/product',{params:params})
       .then(response=>{
         if (response.data.success) {       
           this.productList = response.data.product;
@@ -598,7 +592,7 @@ export default {
       this.editProductForm.price = row.price;
       this.editProductForm.property = row.property;
 
-      this.$ajax.get('/product/img',{params:{name:this.editProductForm.name}})
+      this.$ajax.get('admin/product/img',{params:{name:this.editProductForm.name}})
       .then(response=>{
         if (response.data.success) {
           response.data.fileList.forEach((value,index) => {
@@ -623,7 +617,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          return this.$ajax.delete('/product',{
+          return this.$ajax.delete('admin/product',{
             data:{
               name:row.name
             }
@@ -638,6 +632,7 @@ export default {
               type: "success"
             })
             this.tableData.splice(index, 1);
+            this.loadProductData();
           }
         })
         .catch(err=>{
@@ -679,7 +674,7 @@ export default {
           let addProductData = JSON.parse(JSON.stringify(this.addProductForm));
           addProductData.tag = addProductData.tag.split("/");
           this.$ajax
-            .post("/product", addProductData)
+            .post("admin/product", addProductData)
             .then(response => {
               if (response.data.success) {
                 this.$refs.upload.submit();
@@ -690,6 +685,7 @@ export default {
                   offset: 100,
                   type: "success"
                 });
+                this.loadProductData();
               } else {
                 this.$notify.error({
                   title: "失败",
@@ -712,7 +708,7 @@ export default {
           let editProductData = JSON.parse(JSON.stringify(this.editProductForm));
           editProductData.tag = editProductData.tag.split("/");
           this.$ajax
-            .put("/product", editProductData)
+            .put("admin/product", editProductData)
             .then(response => {
               if (response.data.success) {
                 this.editProductFormVisible = false;
@@ -748,7 +744,7 @@ export default {
       this.$refs.upload.submit();
     },
     handleRemove(file, fileList) {
-      this.$ajax.delete('/product/img',{
+      this.$ajax.delete('admin/product/img',{
         data:{
           name:this.editProductForm.name,
           fileName:file.name

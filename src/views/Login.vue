@@ -39,7 +39,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-          this.$ajax.post('/signin',{
+          this.$ajax.post('admin/signin',{
             id:this.loginForm.id,
             password:this.loginForm.password
           })

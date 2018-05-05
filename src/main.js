@@ -7,12 +7,13 @@ import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import axios from 'axios';
+import config from './config/config';
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
 
 //设置api路径
-axios.defaults.baseURL = "http://127.0.0.1:4040/admin/";
+axios.defaults.baseURL = config.baseURL;
 axios.defaults.withCredentials=true;
 Vue.prototype.$ajax = axios;
 

@@ -137,7 +137,7 @@ export default {
       },
       modifyFormVisible: false,
       modifyForm: {
-        id:"",
+        id: "",
         oldPassword: "",
         password: "",
         checkPassword: ""
@@ -178,7 +178,7 @@ export default {
             });
           } else {
             this.$ajax
-              .delete("/adminList", {
+              .delete("admin/adminList", {
                 data: {
                   id: row.id
                 }
@@ -219,12 +219,13 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           if (formName == "modifyForm") {
-            this.$ajax.post('/modify',{
-              id:this.modifyForm.id,
-              oldPassword:this.modifyForm.oldPassword,
-              password:this.modifyForm.password
-            })
-            .then(response => {
+            this.$ajax
+              .post("admin/modify", {
+                id: this.modifyForm.id,
+                oldPassword: this.modifyForm.oldPassword,
+                password: this.modifyForm.password
+              })
+              .then(response => {
                 if (response.data.success) {
                   this.$notify.success({
                     title: "成功",
@@ -252,10 +253,9 @@ export default {
                   });
                 }
               });
-
           } else if (formName == "addAdminForm") {
             this.$ajax
-              .post("/signup", {
+              .post("admin/signup", {
                 id: this.addAdminForm.id,
                 password: this.addAdminForm.password
               })
@@ -304,7 +304,7 @@ export default {
   },
   mounted: function() {
     this.$ajax
-      .get("/adminList")
+      .get("admin/adminList")
       .then(response => {
         if (response.data.success) {
           this.$store.state.adminList = response.data.adminList;

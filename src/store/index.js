@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import config from '../config/config'
 
 Vue.use(Vuex)
 const state = {
@@ -10,7 +11,7 @@ const state = {
     level:'',
   },
   adminList:[],
-  baseUrl:'http://127.0.0.1:4040/'
+  baseUrl:config.baseURL
 }
 
 const getters = {
