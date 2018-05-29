@@ -112,6 +112,17 @@
                 <el-table-column property="price" label="单价" width="200"></el-table-column>
                 <el-table-column property="sumPrice" label="总价" width="200"></el-table-column>
             </el-table>
+            <el-row class="address">
+                <el-col :span="24">
+                    收货地址：{{orderAddress.region|prettyRegion}} {{orderAddress.detail}}
+                </el-col>
+                <el-col>
+                    收货人：{{orderAddress.name}}
+                </el-col>
+                <el-col>
+                    联系电话：{{orderAddress.phone}}
+                </el-col>
+            </el-row>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="productDialog = false">关 闭</el-button>
             </span>
@@ -135,12 +146,13 @@ export default {
         {value:'user',label:'用户账号'},       
       ],
       productDialog:false,
-      productsInfo: []
+      productsInfo: [],
+      orderAddress:{}
     };
   },
   methods: {
     showProduct(index, row) {
-        this.productsInfo = [];   
+        this.orderAddress = row.address
         row.products.forEach(value => {
             let productInfo = {};
             productInfo.num  = value.num;
@@ -254,6 +266,11 @@ export default {
     prettyStatus(val) {
       let status = ["", "待付款", "待发货", "待收货", "已完成"];
       return status[val];
+    },
+    prettyRegion:(val) => {
+        if (val) {
+            return val.split('/').join(' ');
+        }
     }
   }
 };
@@ -285,5 +302,9 @@ export default {
 .input-with-select>>>.el-input-group__prepend {
   background-color: #fff;
   width: 80px;
+}
+.address{
+    margin-top:20px;
+    font-size:15px;
 }
 </style>

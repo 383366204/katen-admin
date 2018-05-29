@@ -1,5 +1,5 @@
 let config = {
-    baseURL:'http://127.0.0.1:4040/'
+    baseURL:'http://www.91funky.com/'
 }
 
 module.exports = config

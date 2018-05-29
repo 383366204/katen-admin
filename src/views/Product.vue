@@ -320,15 +320,15 @@ export default {
     return {
       addProductFormVisible: false,
       addProductForm: {
-        grand: "华帝",
-        category: "抽油烟机",
-        name: "CXW-228",
-        tag: "T型机/自动清洗",
-        size: "895x647x517",
-        packageSize: "965x700x577",
-        power: 250,
-        weight: 24,
-        price: 3600,
+        grand: "",
+        category: "",
+        name: "",
+        tag: "",
+        size: "",
+        packageSize: "",
+        power: null,
+        weight: null,
+        price: null,
         property: []
       },
       editProductFormVisible: false,
@@ -697,6 +697,7 @@ export default {
             .catch(err => {
               console.log(err);
             });
+            this.resetForm(formName);
         } else {
           console.log("err submit");
         }
